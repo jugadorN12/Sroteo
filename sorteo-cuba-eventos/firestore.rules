@@ -4,18 +4,27 @@ service cloud.firestore {
 
     // Formulario de inscripción pública
     match /participantes_sorteo/{docId} {
-      allow create: if request.resource.data.keys().hasAll(['nombre', 'fecha_nacimiento', 'celular', 'consentimiento_datos'])
-                    && request.resource.data.keys().hasOnly(['nombre', 'fecha_nacimiento', 'celular', 'consentimiento_datos', 'fecha_consentimiento', 'acepta_marketing', 'ya_gano', 'creado'])
-                    && request.resource.data.consentimiento_datos == true
-                    && request.resource.data.ya_gano == false
-                    && request.resource.data.nombre is string
-                    && request.resource.data.nombre.size() >= 2
-                    && request.resource.data.nombre.size() <= 80
-                    && request.resource.data.celular is string
-                    && request.resource.data.celular.size() >= 8
-                    && request.resource.data.celular.size() <= 25
-                    && request.resource.data.fecha_nacimiento is string
-                    && request.resource.data.fecha_nacimiento.size() == 10;
+      allow create: if (request.auth != null && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'])
+                    || (
+                      request.resource.data.keys().hasAll(['nombre', 'fecha_nacimiento', 'celular', 'consentimiento_datos'])
+                      && request.resource.data.keys().hasOnly(['nombre', 'fecha_nacimiento', 'celular', 'celular_normalizado', 'fecha_evento', 'consentimiento_datos', 'fecha_consentimiento', 'acepta_marketing', 'ya_gano', 'creado'])
+                      && request.resource.data.consentimiento_datos == true
+                      && request.resource.data.ya_gano == false
+                      && request.resource.data.nombre is string
+                      && request.resource.data.nombre.size() >= 2
+                      && request.resource.data.nombre.size() <= 80
+                      && request.resource.data.celular is string
+                      && request.resource.data.celular.size() >= 8
+                      && request.resource.data.celular.size() <= 25
+                      && request.resource.data.fecha_nacimiento is string
+                      && request.resource.data.fecha_nacimiento.size() == 10
+                      && request.resource.data.fecha_evento is string
+                      && request.resource.data.fecha_evento.size() == 10
+                      && request.resource.data.celular_normalizado is string
+                      && request.resource.data.celular_normalizado.size() >= 8
+                      && request.resource.data.celular_normalizado.size() <= 15
+                      && docId == request.resource.data.fecha_evento + '_' + request.resource.data.celular_normalizado
+                    );
 
       allow read, update, delete: if request.auth != null
                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];

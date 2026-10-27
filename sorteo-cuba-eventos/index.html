@@ -412,7 +412,7 @@
   // ------------------------------------------------------------------
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getFirestore, collection, addDoc, serverTimestamp, doc, getDoc
+    getFirestore, collection, setDoc, serverTimestamp, doc, getDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -512,9 +512,30 @@
     errorMsg.style.display = 'none';
   }
 
+  function normalizarCelular(valor){
+    let limpio = (valor || '').replace(/\D/g, '');
+    if (limpio.startsWith('549')) limpio = limpio.substring(3);
+    else if (limpio.startsWith('54')) limpio = limpio.substring(2);
+    if (limpio.startsWith('0')) limpio = limpio.substring(1);
+    if (limpio.startsWith('15')) limpio = limpio.substring(2);
+    return limpio;
+  }
+
   function celularValido(valor){
-    const limpio = valor.replace(/[^0-9]/g, '');
+    const limpio = normalizarCelular(valor);
     return limpio.length >= 8 && limpio.length <= 15;
+  }
+
+  function obtenerFechaNocheEvento(fechaRef = new Date()){
+    const d = new Date(fechaRef);
+    // Si son entre las 00:00 y las 07:00 AM, pertenece a la noche del día anterior del evento
+    if (d.getHours() < 7) {
+      d.setDate(d.getDate() - 1);
+    }
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 
   function esMayorDeEdad(fechaStr){
@@ -557,14 +578,20 @@
       return;
     }
 
+    const cleanPhone = normalizarCelular(celular);
+    const fechaEvento = obtenerFechaNocheEvento();
+    const docId = `${fechaEvento}_${cleanPhone}`;
+
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
 
     try{
-      const docRef = await addDoc(collection(db, 'participantes_sorteo'), {
+      await setDoc(doc(db, 'participantes_sorteo', docId), {
         nombre,
         fecha_nacimiento: fecha,
         celular,
+        celular_normalizado: cleanPhone,
+        fecha_evento: fechaEvento,
         consentimiento_datos: true,
         fecha_consentimiento: serverTimestamp(),
         acepta_marketing: marketing,
@@ -572,7 +599,7 @@
         creado: serverTimestamp()
       });
 
-      const codigo = docRef.id.slice(-6).toUpperCase();
+      const codigo = cleanPhone.slice(-5);
       successCode.textContent = '#' + codigo;
 
       hero.style.display = 'none';
@@ -583,7 +610,11 @@
       console.error(err);
       submitBtn.disabled = false;
       submitBtn.textContent = 'Confirmar participación';
-      showError('Algo salió mal al enviar tus datos. Probá de nuevo en unos segundos.');
+      if (err.code === 'permission-denied') {
+        showError('¡Este número de celular ya está registrado para el sorteo de esta noche!');
+      } else {
+        showError('Algo salió mal al enviar tus datos. Probá de nuevo en unos segundos.');
+      }
     }
   });
 </script>

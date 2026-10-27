@@ -12,3 +12,7 @@
 ## [2026-10-27] - Decisión 03: Blindaje de privacidad y transacciones atómicas en sorteo
 - **Decisión**: Separar el canal público (`sorteo/actual`, leído por proyectores sin autenticación) del canal privado administrativo (`sorteo/privado_ganador`, protegido por login). Utilizar `writeBatch` para atomicidad en la designación de ganadores.
 - **Motivo**: Cumplir con la Ley 25.326 evitando que números de celular y fechas de nacimiento viajen a pantallas públicas. Evitar desincronizaciones de base de datos ante caídas de red durante el evento.
+
+## [2026-10-27] - Decisión 04: Prevención de duplicados por celular y noche contable de evento
+- **Decisión**: Generar el ID de documento en Firestore combinando la fecha de la noche (`YYYY-MM-DD`, con corte a las 07:00 AM para considerar la madrugada como la misma noche de fiesta) y el celular normalizado (sin prefijos variables 0, 15, +54). En `firestore.rules`, bloquear la sobreescritura si el documento ya existe para usuarios no autenticados.
+- **Motivo**: Prevenir que un participante se registre decenas de veces en la misma noche para obtener ventajas indebidas, permitiendo a la vez que vuelva a participar en fechas futuras.

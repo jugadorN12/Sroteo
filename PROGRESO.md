@@ -11,12 +11,11 @@
 - [x] **Blindaje de privacidad y seguridad**: Se eliminó la exposición de celulares y cumpleaños en `sorteo/actual`.
 - [x] **Transacciones atómicas**: Adopción de `writeBatch` en `admin.html` y `control-remoto.html`.
 - [x] **Hardening de reglas**: Validación de tipos, tamaños y campos restringidos en `firestore.rules`.
-
-- [x] **Despliegue exitoso a producción**: Reglas de Firestore y aplicación web publicadas en Firebase Hosting (`https://cuba-eventos.web.app/`).
+- [x] **Despliegue a producción de v1.1.0** completado en Firebase.
+- [x] **Prevención de registros duplicados por celular y noche**: Normalización de teléfonos, cálculo de noche contable (corte 07:00 AM) y bloqueo en Firestore.
 
 ## En Curso
-- [ ] Pruebas en vivo y verificación de flujo completo.
+- [ ] Despliegue de versión 1.2.0 (reglas y formulario anti-duplicados).
 
 ## Siguiente
-- [ ] Prevención de registros duplicados por celular en una misma noche.
 - [ ] Retiro o archivo de versiones redundantes (`formulario-sorteo.html` de la raíz).
