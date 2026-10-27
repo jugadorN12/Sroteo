@@ -12,8 +12,10 @@
 - [x] **Transacciones atómicas**: Adopción de `writeBatch` en `admin.html` y `control-remoto.html`.
 - [x] **Hardening de reglas**: Validación de tipos, tamaños y campos restringidos en `firestore.rules`.
 
+- [x] **Despliegue exitoso a producción**: Reglas de Firestore y aplicación web publicadas en Firebase Hosting (`https://cuba-eventos.web.app/`).
+
 ## En Curso
-- [ ] Validación y despliegue de las nuevas reglas en Firebase.
+- [ ] Pruebas en vivo y verificación de flujo completo.
 
 ## Siguiente
 - [ ] Prevención de registros duplicados por celular en una misma noche.
