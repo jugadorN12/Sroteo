@@ -14,8 +14,10 @@
 - [x] **Despliegue a producción de v1.1.0** completado en Firebase.
 - [x] **Prevención de registros duplicados por celular y noche**: Normalización de teléfonos, cálculo de noche contable (corte 07:00 AM) y bloqueo en Firestore.
 
+- [x] **Despliegue a producción de v1.2.0**: Reglas y formulario anti-duplicados activos en Firebase Hosting y Cloud Firestore.
+
 ## En Curso
-- [ ] Despliegue de versión 1.2.0 (reglas y formulario anti-duplicados).
+- [ ] Verificación final y prueba de flujo completo.
 
 ## Siguiente
 - [ ] Retiro o archivo de versiones redundantes (`formulario-sorteo.html` de la raíz).
