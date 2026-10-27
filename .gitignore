@@ -1,0 +1,21 @@
+# Configuración de entornos y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Registros y temporales
+*.log
+logs/
+firebase-debug.log*
+
+# Firebase cache
+.firebase/
+**/.firebase/
+
+# Variables de entorno privadas
+.env
+*.env.local
+
+# Dependencias (si se agregaran)
+node_modules/

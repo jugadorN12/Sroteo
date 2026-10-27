@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Datos Demo | Cuba Eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#f5f0fa;--soft:#b7a9c9;--bg:#100b18;--panel:#1d1428;--line:rgba(255,255,255,.13);--pink:#ff3d9a;--cyan:#33e1e8;--red:#ef4444}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:radial-gradient(650px 500px at 8% 0,rgba(255,61,154,.23),transparent 60%),linear-gradient(145deg,#100b18,#251238);color:var(--ink);font-family:'Work Sans',sans-serif;padding:20px}
+  .panel{width:min(100%,620px);background:rgba(29,20,40,.86);border:1px solid var(--line);border-radius:14px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  h1{font-family:'Big Shoulders Display',sans-serif;font-size:38px;margin:0 0 10px;text-transform:uppercase;color:var(--ink)}
+  p{color:var(--soft);line-height:1.5;font-size:14px}
+  .status{min-height:24px;color:var(--cyan);font-weight:600;font-size:14px;margin-top:14px}
+  .button{border:0;border-radius:8px;padding:12px 18px;color:#fff;font-weight:700;font-size:14px;cursor:pointer;margin:10px 8px 0 0;background:linear-gradient(100deg,var(--pink),#8b5cf6)}
+  .danger{background:linear-gradient(100deg,#ef4444,#dc2626)}
+  .secondary{background:transparent;border:1px solid var(--line);color:var(--soft)}
+  .secondary:hover{color:var(--ink);border-color:var(--soft)}
+  button:disabled{opacity:.5;cursor:wait}
+  .nav{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+  .nav a{color:var(--cyan);text-decoration:none;font-size:13px;font-weight:600;padding:8px 12px;border:1px solid var(--line);border-radius:8px}
+  .nav a:hover{border-color:var(--cyan)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main class="panel">
+  <h1>Carga de Participantes Demo</h1>
+  <p>Esta herramienta crea o elimina <strong>200 participantes de prueba</strong> marcados como demo. No afecta registros reales del boliche.</p>
+
+  <div id="login">
+    <p>Para interactuar con la base de datos de Firebase, iniciá sesión con una de las cuentas administradoras autorizadas:</p>
+    <button id="loginButton" class="button">Ingresar con Google</button>
+    <p id="error" style="color:var(--red);margin-top:12px"></p>
+  </div>
+
+  <section id="tools" hidden>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-bottom:1px solid var(--line); padding-bottom:10px;">
+      <span id="account" style="color:var(--cyan);font-weight:600;font-size:13px"></span>
+      <button id="logoutButton" class="button secondary" style="padding:6px 10px;font-size:12px;margin:0">Cerrar sesión</button>
+    </div>
+    <button id="seedButton" class="button">✨ Generar 200 Participantes Demo</button>
+    <button id="deleteButton" class="button danger">🗑️ Borrar Demos</button>
+    <p id="status" class="status"></p>
+    <div class="nav">
+      <a href="control-remoto.html">📱 Ir al Control Móvil</a>
+      <a href="pantalla-sorteo.html" target="_blank">📺 Abrir Pantalla</a>
+      <a href="participantes.html">📋 Ver Base de Datos</a>
+      <a href="admin.html">⚙️ Panel Principal</a>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, query, where, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const config = {
+  apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
+  authDomain: 'cuba-eventos.firebaseapp.com',
+  projectId: 'cuba-eventos',
+  storageBucket: 'cuba-eventos.firebasestorage.app',
+  messagingSenderId: '504683487458',
+  appId: '1:504683487458:web:724f3fb58f18c25b847ebb'
+};
+
+const ADMIN_EMAILS = ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+const app = initializeApp(config);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+const login = document.getElementById('login');
+const tools = document.getElementById('tools');
+const status = document.getElementById('status');
+const errorMsg = document.getElementById('error');
+
+const demoQuery = () => getDocs(query(collection(db, 'participantes_sorteo'), where('demo', '==', true)));
+
+document.getElementById('loginButton').onclick = async () => {
+  errorMsg.textContent = '';
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(error) {
+    errorMsg.textContent = error.message;
+  }
+};
+
+document.getElementById('logoutButton').onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, user => {
+  if (user && ADMIN_EMAILS.includes(user.email)) {
+    login.hidden = true;
+    tools.hidden = false;
+    errorMsg.textContent = '';
+    document.getElementById('account').textContent = `Sesión: ${user.email}`;
+  } else {
+    login.hidden = false;
+    tools.hidden = true;
+    if (user) {
+      errorMsg.textContent = `La cuenta ${user.email} no tiene permisos administrativos.`;
+    }
+  }
+});
+
+const firstNames = [
+  'Sofía', 'Mateo', 'Valentina', 'Santiago', 'Camila', 'Benjamín', 'Martina', 'Tomás',
+  'Julieta', 'Nicolás', 'Emma', 'Thiago', 'Mía', 'Franco', 'Renata', 'Lautaro',
+  'Clara', 'Bautista', 'Olivia', 'Agustín', 'Lola', 'Facundo', 'Pilar', 'Máximo',
+  'Ana', 'Lucas', 'Malena', 'Joaquín', 'Zoe', 'Bruno', 'Catalina', 'Simón',
+  'Abril', 'Valentín', 'Bianca', 'Manuel', 'Guadalupe', 'Felipe', 'Lucía', 'Santino',
+  'Delfina', 'Ignacio', 'Victoria', 'Juan', 'Milagros', 'Lorenzo', 'Elena', 'Gonzalo',
+  'Juana', 'Esteban'
+];
+
+const lastNames = [
+  'González', 'Rodríguez', 'Gómez', 'Fernández', 'López', 'Díaz', 'Martínez', 'Pérez',
+  'Romero', 'Sánchez', 'Sosa', 'Torres', 'Álvarez', 'Ruiz', 'Ramírez', 'Flores',
+  'Acosta', 'Benítez', 'Medina', 'Suárez', 'Herrera', 'Aguirre', 'Pereyra', 'Gutiérrez',
+  'Giménez', 'Molina', 'Silva', 'Castro', 'Rojas', 'Ortiz', 'Núñez', 'Luna',
+  'Juárez', 'Cabrera', 'Ríos', 'Morales', 'Godoy', 'Moreno', 'Ferreyra', 'Domínguez'
+];
+
+const areaCodes = ['11', '351', '341', '223', '261', '381', '299', '387', '342', '264'];
+
+function generate200Participants() {
+  const participants = [];
+  let count = 0;
+
+  for (let i = 0; i < firstNames.length && count < 200; i++) {
+    for (let j = 0; j < lastNames.length && count < 200; j++) {
+      const fn = firstNames[(i + j * 3) % firstNames.length];
+      const ln = lastNames[(j + i * 2) % lastNames.length];
+      const area = areaCodes[count % areaCodes.length];
+      const phoneNum = `${1000 + (count * 37) % 9000}`;
+      const year = 1986 + (count % 20); // 1986 a 2005 (mayores de 18)
+      const month = String(1 + (count % 12)).padStart(2, '0');
+      const day = String(1 + ((count * 5) % 27)).padStart(2, '0');
+
+      participants.push({
+        nombre: `${fn} ${ln}`,
+        fecha_nacimiento: `${year}-${month}-${day}`,
+        celular: `${area} ${phoneNum.slice(0,2)}${phoneNum.slice(2)}-${String(4000 + count).slice(-4)}`,
+        consentimiento_datos: true,
+        acepta_marketing: count % 2 === 0,
+        ya_gano: false,
+        demo: true
+      });
+      count++;
+    }
+  }
+  return participants;
+}
+
+document.getElementById('seedButton').onclick = async () => {
+  const button = document.getElementById('seedButton');
+  button.disabled = true;
+  status.textContent = 'Limpiando demos anteriores y preparando 200 participantes...';
+
+  try {
+    // 1. Borrar demos viejos
+    const old = await demoQuery();
+    if (!old.empty) {
+      const deleteBatch = writeBatch(db);
+      old.docs.forEach(docSnap => deleteBatch.delete(doc(db, 'participantes_sorteo', docSnap.id)));
+      await deleteBatch.commit();
+    }
+
+    // 2. Insertar 200 nuevos demos en un batch atómico
+    status.textContent = 'Guardando 200 participantes en Firestore...';
+    const participants = generate200Participants();
+    const insertBatch = writeBatch(db);
+
+    participants.forEach(p => {
+      const newDocRef = doc(collection(db, 'participantes_sorteo'));
+      insertBatch.set(newDocRef, {
+        ...p,
+        creado: serverTimestamp()
+      });
+    });
+
+    await insertBatch.commit();
+    status.textContent = `✅ ¡Listo! Se generaron 200 participantes demo listos para el sorteo.`;
+  } catch(error) {
+    status.textContent = `❌ Error: ${error.message}`;
+    console.error(error);
+  } finally {
+    button.disabled = false;
+  }
+};
+
+document.getElementById('deleteButton').onclick = async () => {
+  if (!confirm('¿Borrar todos los participantes demo?')) return;
+  const button = document.getElementById('deleteButton');
+  button.disabled = true;
+  status.textContent = 'Borrando demos...';
+
+  try {
+    const snapshot = await demoQuery();
+    if (snapshot.empty) {
+      status.textContent = 'No hay participantes demo para borrar.';
+      return;
+    }
+
+    const batch = writeBatch(db);
+    snapshot.docs.forEach(docSnap => batch.delete(doc(db, 'participantes_sorteo', docSnap.id)));
+    await batch.commit();
+
+    status.textContent = `✅ Se borraron ${snapshot.size} participantes demo.`;
+  } catch(error) {
+    status.textContent = `❌ Error: ${error.message}`;
+  } finally {
+    button.disabled = false;
+  }
+};
+</script>
+</body>
+</html>

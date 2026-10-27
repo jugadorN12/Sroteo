@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Participá del sorteo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Syne:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#0B0713;
+    --bg-2:#160C24;
+    --card:rgba(255,255,255,0.045);
+    --card-border:rgba(255,255,255,0.10);
+    --pink:#FF3D9A;
+    --violet:#8B5CF6;
+    --cyan:#33E1E8;
+    --ink:#F5F0FA;
+    --ink-soft:#B7A9C9;
+    --field-bg:rgba(255,255,255,0.055);
+    --field-border:rgba(255,255,255,0.14);
+    --error:#FF6B6B;
+    --font-body:'Work Sans', sans-serif;
+    --font-display:'Big Shoulders Display', 'Syne', sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ min-height:100%; }
+  body{ min-height:100vh; overflow-x:hidden; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--pink) rgba(0,0,0,0.18); }
+  body::-webkit-scrollbar{ width:6px; }
+  body::-webkit-scrollbar-track{ background:rgba(0,0,0,0.18); }
+  body::-webkit-scrollbar-thumb{ background:var(--pink); border-radius:8px; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background:
+      radial-gradient(650px 500px at 12% -5%, rgba(255,61,154,0.30), transparent 60%),
+      radial-gradient(600px 480px at 105% 15%, rgba(51,225,232,0.22), transparent 55%),
+      radial-gradient(700px 600px at 50% 120%, rgba(139,92,246,0.30), transparent 60%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-2));
+    background-attachment:fixed;
+    font-family:var(--font-body);
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px;
+  }
+
+  .shell{ width:100%; max-width:1000px; }
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-radius:26px;
+    overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+    display:grid;
+    grid-template-columns:1fr;
+  }
+
+  /* ---------- Hero / branding side ---------- */
+  .hero{
+    padding:40px 32px 28px;
+    text-align:center;
+    position:relative;
+  }
+
+  .logo-slot{
+    width:78px;
+    height:78px;
+    margin:0 auto 18px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--pink), var(--violet));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.03em;
+    color:#fff;
+    box-shadow:0 0 0 3px rgba(255,255,255,0.08), 0 8px 30px rgba(255,61,154,0.45);
+  }
+  /* Para poner el logo real, reemplazá el div de arriba por:
+     <img src="tu-logo.png" alt="Logo" style="width:78px;height:78px;border-radius:50%;object-fit:cover;"> */
+
+  .kicker{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    color:var(--cyan);
+    margin-bottom:14px;
+  }
+  .kicker::before{
+    content:"";
+    width:7px; height:7px;
+    border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan);
+  }
+
+  h1{
+    font-family:var(--font-display);
+    font-weight:900;
+    text-transform:uppercase;
+    letter-spacing:0.01em;
+    font-size:clamp(34px, 7vw, 50px);
+    line-height:0.98;
+    margin:0 0 12px;
+    background:linear-gradient(100deg, #fff 20%, var(--pink) 55%, var(--cyan) 90%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+
+  .sub{
+    font-size:15.5px;
+    line-height:1.55;
+    color:var(--ink-soft);
+    margin:0 auto;
+    max-width:420px;
+  }
+  .sub strong{ color:var(--ink); }
+
+  /* ---------- Form side ---------- */
+  .form-side{ padding:8px 28px 34px; }
+
+  .error-msg{
+    display:none;
+    background:rgba(255,107,107,0.12);
+    border:1px solid rgba(255,107,107,0.35);
+    color:var(--error);
+    font-size:13.5px;
+    padding:12px 14px;
+    border-radius:12px;
+    margin-bottom:16px;
+  }
+
+  .field{ margin-bottom:16px; }
+
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:7px;
+  }
+  label .opt{ font-weight:400; color:var(--ink-soft); }
+
+  input[type="text"],
+  input[type="date"],
+  input[type="tel"]{
+    width:100%;
+    height:50px;
+    min-height:50px;
+    padding:14px 15px;
+    font-size:16px;
+    font-family:inherit;
+    color:var(--ink);
+    background:var(--field-bg);
+    border:1.5px solid var(--field-border);
+    border-radius:12px;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+    color-scheme:dark;
+  }
+
+  input[type="date"]{
+    appearance:none;
+    -webkit-appearance:none;
+    line-height:normal;
+  }
+
+  input::placeholder{ color:#7C6E90; }
+
+  input:focus{
+    border-color:var(--pink);
+    box-shadow:0 0 0 4px rgba(255,61,154,0.15);
+  }
+
+  .consent{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    padding:14px;
+    background:var(--field-bg);
+    border:1.5px solid var(--field-border);
+    border-radius:12px;
+    margin-bottom:12px;
+  }
+
+  .consent input[type="checkbox"]{
+    width:19px;
+    height:19px;
+    margin-top:1px;
+    flex-shrink:0;
+    accent-color:var(--pink);
+  }
+
+  .consent p{
+    margin:0;
+    font-size:13.3px;
+    line-height:1.5;
+    color:var(--ink-soft);
+  }
+  .consent.required p{ color:var(--ink); }
+  .consent a{ color:var(--cyan); font-weight:600; text-decoration:none; }
+  .consent details{ flex:1; min-width:0; }
+  .consent summary{ cursor:pointer; color:var(--ink); font-size:13.3px; font-weight:600; }
+  .consent details p{ margin-top:8px; color:var(--ink-soft); }
+  .promo{ margin-top:22px; padding:16px; border:1px solid var(--field-border); border-radius:12px; background:linear-gradient(130deg,rgba(255,61,154,.13),rgba(51,225,232,.08)); }
+  .promo h3{ margin:0 0 5px; color:var(--ink); font-size:17px; }
+  .promo p{ margin:0; color:var(--ink-soft); font-size:13px; line-height:1.5; }
+  .promo img{ display:block; width:100%; max-height:360px; object-fit:contain; border-radius:8px; margin-bottom:12px; }
+
+  button{
+    width:100%;
+    padding:16px;
+    margin-top:6px;
+    font-family:var(--font-body);
+    font-size:16px;
+    font-weight:700;
+    color:#fff;
+    background:linear-gradient(100deg, var(--pink), var(--violet));
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    box-shadow:0 10px 30px rgba(255,61,154,0.35);
+    transition:transform .1s ease, box-shadow .15s ease;
+  }
+  button:hover{ box-shadow:0 12px 36px rgba(255,61,154,0.5); }
+  button:active{ transform:scale(0.98); }
+  button:disabled{ background:#3A3348; box-shadow:none; cursor:default; }
+
+  .foot-note{
+    text-align:center;
+    font-size:12px;
+    color:#8B7E9E;
+    margin-top:16px;
+    line-height:1.5;
+  }
+
+
+  /* ---------- Success state ---------- */
+  .success{
+    display:none;
+    padding:64px 28px 58px;
+    text-align:center;
+    background:
+      radial-gradient(420px 220px at 50% 0, rgba(51,225,232,0.15), transparent 70%),
+      linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.015));
+  }
+  .success .stamp{
+    width:84px; height:84px;
+    margin:0 auto 24px;
+    border-radius:50%;
+    background:linear-gradient(135deg, var(--cyan), var(--violet));
+    display:flex; align-items:center; justify-content:center;
+    color:#0B0713;
+    font-size:0;
+    box-shadow:0 0 40px rgba(51,225,232,0.45);
+    position:relative;
+  }
+  .success .stamp::after{
+    content:"";
+    width:23px;
+    height:38px;
+    border-right:6px solid #0B0713;
+    border-bottom:6px solid #0B0713;
+    transform:rotate(45deg) translate(-3px, -4px);
+  }
+  .success .eyebrow{ color:var(--cyan); font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:10px; }
+  .success h2{
+    font-family:var(--font-display);
+    font-weight:800;
+    font-size:clamp(30px, 6vw, 42px);
+    line-height:1;
+    text-transform:uppercase;
+    margin:0 0 12px;
+  }
+  .success p{
+    font-size:14.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0 0 4px;
+    max-width:340px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .success .code{
+    display:inline-flex;
+    flex-direction:column;
+    gap:5px;
+    margin-top:22px;
+    padding:13px 24px;
+    background:rgba(255,255,255,0.06);
+    border:1.5px dashed rgba(255,255,255,0.25);
+    border-radius:10px;
+    font-family:var(--font-display);
+    font-weight:700;
+    letter-spacing:0.06em;
+    font-size:22px;
+    color:var(--cyan);
+  }
+  .success .code::before{ content:"CÓDIGO DE PARTICIPACIÓN"; color:var(--ink-soft); font-family:var(--font-body); font-size:10px; letter-spacing:.12em; }
+
+  /* ---------- Desktop layout ---------- */
+  @media (min-width: 860px){
+    .panel{ grid-template-columns:1fr 1fr; align-items:stretch; }
+    .hero{
+      padding:56px 40px;
+      text-align:left;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      border-right:1px solid var(--card-border);
+    }
+    .logo-slot{ margin:0 0 22px; }
+    .kicker{ justify-content:flex-start; }
+    .sub{ margin:0; }
+    .form-side{ padding:56px 44px 56px 40px; display:flex; flex-direction:column; justify-content:center; }
+    .success{ grid-column:1 / -1; padding:78px 40px; }
+  }
+
+  @media (max-width: 859px){
+    body{ align-items:flex-start; padding:16px 10px; }
+    .shell{ margin:0 auto; }
+  }
+
+  @media (max-width: 480px){
+    body::-webkit-scrollbar{ width:4px; }
+  }
+
+
+  @media (prefers-reduced-motion: reduce){
+    button{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="panel" id="panel">
+
+    <div class="hero">
+      <div class="logo-slot" id="logoSlot">LOGO</div>
+      <!-- Reemplazá el div de arriba por tu <img> cuando tengas el logo -->
+      <span class="kicker" id="kickerText">Sorteo activo esta noche</span>
+      <h1 id="headlineText">Participá y ganá</h1>
+      <p class="sub" id="introText">Completá tus datos para entrar en el sorteo de <strong id="prizeText">[NOMBRE DEL PREMIO]</strong>. Si salís ganador/a te avisamos por celular.</p>
+    </div>
+
+    <div class="form-side">
+      <div class="error-msg" id="errorMsg"></div>
+
+      <form id="sorteoForm" novalidate>
+        <div class="field">
+          <label for="nombre" id="nameLabel">Nombre y apellido</label>
+          <input type="text" id="nombre" name="nombre" required autocomplete="name" placeholder="Ej: Ana Gómez">
+        </div>
+
+        <div class="field">
+          <label for="fecha" id="dateLabel">Fecha de cumpleaños</label>
+          <input type="date" id="fecha" name="fecha" required>
+        </div>
+
+        <div class="field">
+          <label for="celular" id="phoneLabel">Número de celular <span class="opt">(con código de área)</span></label>
+          <input type="tel" id="celular" name="celular" required autocomplete="tel" placeholder="Ej: 11 2345 6789" inputmode="numeric">
+        </div>
+
+        <div class="consent required">
+          <input type="checkbox" id="consentimiento" name="consentimiento" required>
+          <details><summary>Acepto el uso de mis datos personales</summary><p id="consentText">Acepto que traten mis datos personales para gestionar mi participación en el sorteo, conforme a la Ley 25.326. Puedo pedir que los borren cuando quiera escribiendo a <strong>[tu email de contacto]</strong>.</p></details>
+        </div>
+
+        <div class="consent">
+          <input type="checkbox" id="marketing" name="marketing">
+          <details><summary>Quiero recibir promociones y novedades</summary><p id="marketingText">Quiero recibir promociones y novedades por redes sociales o WhatsApp.</p></details>
+        </div>
+
+        <button type="submit" id="submitBtn">Confirmar participación</button>
+      </form>
+
+      <p class="foot-note" id="footNote">Tus datos se usan solo para este sorteo. No los compartimos con terceros.</p>
+      <aside class="promo" id="promoBox" hidden><img id="promoImage" alt="Flyer del próximo evento"><h3 id="promoTitle"></h3><p id="promoText"></p></aside>
+    </div>
+
+    <div class="success" id="successView">
+      <div class="stamp" aria-hidden="true"></div>
+      <div class="eyebrow">Participación confirmada</div>
+      <h2 id="successTitle">¡Ya estás participando!</h2>
+      <p id="successText">Guardá este número por si te contactamos para confirmar el premio.</p>
+      <div class="code" id="successCode">—</div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  // ------------------------------------------------------------------
+  // 1) Pegá acá la config de tu proyecto Firebase (Configuración del
+  //    proyecto > Tus apps > SDK setup and configuration).
+  // ------------------------------------------------------------------
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, serverTimestamp, doc, getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4",
+    authDomain: "cuba-eventos.firebaseapp.com",
+    projectId: "cuba-eventos",
+    storageBucket: "cuba-eventos.firebasestorage.app",
+    messagingSenderId: "504683487458",
+    appId: "1:504683487458:web:724f3fb58f18c25b847ebb"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ------------------------------------------------------------------
+  // 2) Lógica del formulario
+  // ------------------------------------------------------------------
+  const form = document.getElementById('sorteoForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const errorMsg = document.getElementById('errorMsg');
+  const successView = document.getElementById('successView');
+  const hero = document.querySelector('.hero');
+  const formSide = document.querySelector('.form-side');
+  const successCode = document.getElementById('successCode');
+  const logoSlot = document.getElementById('logoSlot');
+
+  const defaultSettings = {
+    logoUrl: '',
+    backgroundColor: '#0B0713',
+    accentColor: '#FF3D9A',
+    bodyFont: 'Work Sans',
+    displayFont: 'Big Shoulders Display',
+    kicker: 'Sorteo activo esta noche',
+    headline: 'Participá y ganá',
+    introBefore: 'Completá tus datos para entrar en el sorteo de',
+    prize: '[NOMBRE DEL PREMIO]',
+    introAfter: 'Si salís ganador/a te avisamos por celular.',
+    nameLabel: 'Nombre y apellido',
+    dateLabel: 'Fecha de cumpleaños',
+    phoneLabel: 'Número de celular',
+    consent: 'Acepto que traten mis datos personales para gestionar mi participación en el sorteo, conforme a la Ley 25.326. Puedo pedir que los borren cuando quiera escribiendo a [tu email de contacto].',
+    marketing: 'Quiero recibir promociones y novedades por redes sociales o WhatsApp.',
+    submit: 'Confirmar participación',
+    footNote: 'Tus datos se usan solo para este sorteo. No los compartimos con terceros.',
+    promoTitle: '',
+    promoText: '',
+    promoImage: '',
+    promoLink: '',
+    successTitle: '¡Ya estás participando!',
+    successText: 'Guardá este número por si te contactamos para confirmar el premio.'
+  };
+
+  function applySettings(settings){
+    const values = { ...defaultSettings, ...settings };
+    document.documentElement.style.setProperty('--bg-1', values.backgroundColor);
+    document.documentElement.style.setProperty('--pink', values.accentColor);
+    document.documentElement.style.setProperty('--font-body', `'${values.bodyFont}', sans-serif`);
+    document.documentElement.style.setProperty('--font-display', `'${values.displayFont}', sans-serif`);
+    document.getElementById('kickerText').textContent = values.kicker;
+    document.getElementById('headlineText').textContent = values.headline;
+    document.getElementById('introText').innerHTML = `${values.introBefore} <strong id="prizeText"></strong>. ${values.introAfter}`;
+    document.getElementById('prizeText').textContent = values.prize;
+    document.getElementById('nameLabel').textContent = values.nameLabel;
+    document.getElementById('dateLabel').textContent = values.dateLabel;
+    document.getElementById('phoneLabel').innerHTML = `${values.phoneLabel} <span class="opt">(con código de área)</span>`;
+    document.getElementById('consentText').textContent = values.consent;
+    document.getElementById('marketingText').textContent = values.marketing;
+    document.getElementById('submitBtn').textContent = values.submit;
+    document.getElementById('footNote').textContent = values.footNote;
+    const promoBox = document.getElementById('promoBox');
+    const promoImage = document.getElementById('promoImage');
+    document.getElementById('promoTitle').textContent = values.promoTitle;
+    document.getElementById('promoText').textContent = values.promoText;
+    if(values.promoImage){ promoImage.src = values.promoImage; promoImage.hidden = false; } else promoImage.hidden = true;
+    promoBox.hidden = !(values.promoTitle || values.promoText || values.promoImage);
+    document.getElementById('successTitle').textContent = values.successTitle;
+    document.getElementById('successText').textContent = values.successText;
+    if(values.logoUrl){
+      logoSlot.innerHTML = '';
+      const logo = document.createElement('img');
+      logo.src = values.logoUrl;
+      logo.alt = 'Logo';
+      logo.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;';
+      logoSlot.appendChild(logo);
+    }
+  }
+
+  getDoc(doc(db, 'configuracion', 'formulario')).then(snapshot => {
+    if(snapshot.exists()) applySettings(snapshot.data());
+  }).catch(error => console.warn('No se pudo cargar la configuración personalizada.', error));
+
+  function showError(msg){
+    errorMsg.textContent = msg;
+    errorMsg.style.display = 'block';
+  }
+  function hideError(){
+    errorMsg.style.display = 'none';
+  }
+
+  function celularValido(valor){
+    const limpio = valor.replace(/[^0-9]/g, '');
+    return limpio.length >= 8 && limpio.length <= 15;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const nombre = document.getElementById('nombre').value.trim();
+    const fecha = document.getElementById('fecha').value;
+    const celular = document.getElementById('celular').value.trim();
+    const consentimiento = document.getElementById('consentimiento').checked;
+    const marketing = document.getElementById('marketing').checked;
+
+    if(!nombre || !fecha || !celular){
+      showError('Completá todos los campos para continuar.');
+      return;
+    }
+    if(!celularValido(celular)){
+      showError('Revisá el número de celular, parece incompleto.');
+      return;
+    }
+    if(!consentimiento){
+      showError('Necesitamos tu consentimiento para poder registrarte en el sorteo.');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    try{
+      const docRef = await addDoc(collection(db, 'participantes_sorteo'), {
+        nombre,
+        fecha_nacimiento: fecha,
+        celular,
+        consentimiento_datos: true,
+        fecha_consentimiento: serverTimestamp(),
+        acepta_marketing: marketing,
+        creado: serverTimestamp()
+      });
+
+      const codigo = docRef.id.slice(-6).toUpperCase();
+      successCode.textContent = '#' + codigo;
+
+      hero.style.display = 'none';
+      formSide.style.display = 'none';
+      successView.style.display = 'block';
+
+    }catch(err){
+      console.error(err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Confirmar participación';
+      showError('Algo salió mal al enviar tus datos. Probá de nuevo en unos segundos.');
+    }
+  });
+</script>
+
+</body>
+</html>

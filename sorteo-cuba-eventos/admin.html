@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administración | Sorteo Cuba Eventos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Syne:wght@600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#f5f0fa;--soft:#b7a9c9;--bg:#100b18;--panel:#1d1428;--line:rgba(255,255,255,.13);--pink:#ff3d9a;--cyan:#33e1e8}
+  *{box-sizing:border-box} body{margin:0;min-height:100vh;background:radial-gradient(650px 500px at 8% 0,rgba(255,61,154,.23),transparent 60%),linear-gradient(145deg,#100b18,#251238);color:var(--ink);font-family:'Work Sans',sans-serif;padding:28px 16px}
+  main{max-width:980px;margin:auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.topbar h1{font-family:'Big Shoulders Display',sans-serif;font-size:42px;line-height:1;margin:7px 0 0;text-transform:uppercase}.user{color:var(--soft);font-size:13px;text-align:right}button{border:0;border-radius:9px;padding:12px 16px;font:700 14px 'Work Sans',sans-serif;cursor:pointer;color:#fff;background:linear-gradient(100deg,var(--pink),#8b5cf6)}button.secondary{background:transparent;border:1px solid var(--line);color:var(--soft)}button:disabled{opacity:.55;cursor:wait}.layout{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}#adminView[hidden],#loginView[hidden]{display:none}.panel{background:rgba(29,20,40,.86);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.25)}h2{font-size:17px;margin:0 0 18px}h3{font-size:13px;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin:25px 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:7px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--soft);font-weight:600}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.06);color:var(--ink);padding:11px 12px;font:14px 'Work Sans',sans-serif;outline:none}textarea{min-height:76px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:var(--pink)}select option{background:#21152e}.hint{font-size:12px;color:#8f82a1;margin:7px 0 0}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}.status{min-height:21px;margin:14px 0 0;color:var(--cyan);font-size:13px}.login{text-align:center;padding:65px 22px}.login p{color:var(--soft);line-height:1.5}.preview{background:#0b0713;border-radius:10px;overflow:hidden;min-height:510px}.preview iframe{display:block;width:100%;height:510px;border:0;background:#0b0713}.preview-link{display:block;color:var(--cyan);font-size:12px;text-align:center;margin-top:12px;text-decoration:none}@media(max-width:760px){.layout{grid-template-columns:1fr}.topbar{align-items:flex-start}.topbar h1{font-size:35px}.user{font-size:11px}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+  .birthdays,.live-draw{grid-column:1/-1}.notice{margin:-4px 0 18px;padding:13px 14px;border:1px solid rgba(51,225,232,.28);border-radius:10px;background:rgba(51,225,232,.08);color:var(--cyan);font-size:13px}.birthday-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.birthday-item{padding:14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.04)}.birthday-date{color:var(--cyan);font-size:12px;font-weight:700}.birthday-name{margin-top:5px;color:var(--ink);font-size:15px}.birthday-phone{margin-top:5px;color:var(--soft);font-size:12px}.empty{color:var(--soft);font-size:13px;margin:0}.draw-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.draw-grid .field{display:flex;flex-direction:column;gap:7px}.draw-grid label{font-size:12px;color:var(--soft);font-weight:600}.draw-grid input{width:100%;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.06);color:var(--ink);padding:11px 12px;font:14px 'Work Sans',sans-serif;outline:none}.draw-count{color:var(--cyan);font-size:20px;font-weight:700}.draw-link{display:inline-block;margin-top:14px;color:var(--cyan);font-size:13px;font-weight:700}
+  @media(max-width:760px){.birthdays{grid-column:auto}}
+</style>
+</head>
+<body>
+<main>
+  <header class="topbar">
+    <div><div class="eyebrow">Cuba Eventos</div><h1>Panel de sorteo</h1></div>
+      <div class="user"><div id="account"></div><a class="participants-link" href="participantes.html">Ver participantes</a><a class="participants-link" href="#liveDraw">Sorteo en vivo</a></div>
+  </header>
+  <section id="loginView" class="panel login">
+    <h2>Acceso administrativo</h2>
+    <p>Ingresá con la cuenta autorizada para editar la imagen, los colores, las tipografías y los textos del formulario.</p>
+    <button id="loginButton" type="button">Ingresar con Google</button>
+    <p id="loginError" class="status"></p>
+  </section>
+  <section id="adminView" class="layout" hidden>
+    <form id="settingsForm" class="panel">
+      <h2>Personalización</h2>
+      <h3>Identidad visual</h3>
+      <div class="grid">
+        <div class="field full"><label for="logoUrl">URL del logo</label><input id="logoUrl" type="url" placeholder="https://.../logo.png"><p class="hint">También podés pegar una URL pública.</p></div>
+        <div class="field"><label for="backgroundColor">Color de fondo</label><input id="backgroundColor" type="color"></div>
+        <div class="field"><label for="accentColor">Color de acento</label><input id="accentColor" type="color"></div>
+        <div class="field"><label for="bodyFont">Tipografía del formulario</label><select id="bodyFont"><option>Work Sans</option><option>Syne</option><option>Big Shoulders Display</option></select></div>
+        <div class="field"><label for="displayFont">Tipografía de títulos</label><select id="displayFont"><option>Big Shoulders Display</option><option>Syne</option><option>Work Sans</option></select></div>
+      </div>
+      <h3>Contenido</h3>
+      <div class="grid">
+        <div class="field"><label for="kicker">Texto superior</label><input id="kicker"></div>
+        <div class="field"><label for="headline">Título principal</label><input id="headline"></div>
+        <div class="field"><label for="introBefore">Introducción</label><input id="introBefore"></div>
+        <div class="field"><label for="prize">Nombre del premio</label><input id="prize"></div>
+        <div class="field full"><label for="introAfter">Texto posterior al premio</label><input id="introAfter"></div>
+        <div class="field"><label for="nameLabel">Campo nombre</label><input id="nameLabel"></div>
+        <div class="field"><label for="dateLabel">Campo fecha</label><input id="dateLabel"></div>
+        <div class="field"><label for="phoneLabel">Campo celular</label><input id="phoneLabel"></div>
+        <div class="field full"><label for="consent">Consentimiento de datos</label><textarea id="consent"></textarea></div>
+        <div class="field full"><label for="marketing">Texto de promociones</label><textarea id="marketing"></textarea></div>
+        <div class="field full"><label for="promoTitle">Publicidad: título del próximo evento</label><input id="promoTitle" placeholder="Ej: Próxima fiesta: Noche Retro"></div>
+        <div class="field full"><label for="promoText">Publicidad: descripción</label><textarea id="promoText" placeholder="Fecha, horario, entradas y más información"></textarea></div>
+        <div class="field"><label for="promoImage">Publicidad: URL de imagen</label><input id="promoImage" type="url" placeholder="https://.../flyer.jpg"></div>
+        <div class="field"><label for="submit">Botón de envío</label><input id="submit"></div>
+        <div class="field"><label for="footNote">Nota inferior</label><input id="footNote"></div>
+        <div class="field"><label for="successTitle">Título de confirmación</label><input id="successTitle"></div>
+        <div class="field"><label for="successText">Texto de confirmación</label><input id="successText"></div>
+      </div>
+      <div class="actions"><button id="saveButton" type="submit">Guardar cambios</button><button id="logoutButton" class="secondary" type="button">Cerrar sesión</button></div>
+      <p id="saveStatus" class="status"></p>
+    </form>
+    <aside class="panel"><h2>Vista previa</h2><div class="preview"><iframe src="index.html" title="Vista previa del formulario"></iframe></div><a class="preview-link" href="index.html" target="_blank" rel="noopener">Abrir formulario público</a></aside>
+    <section class="panel birthdays">
+      <h2>Próximos cumpleaños</h2>
+      <p id="birthdayNotice" class="notice">Consultando cumpleaños próximos...</p>
+      <div id="birthdayList" class="birthday-list"></div>
+    </section>
+    <section id="liveDraw" class="panel live-draw">
+      <h2>Sorteo en vivo</h2>
+      <p>Configurá el logo y la espera. Al iniciar, la lista de participantes queda congelada y la pantalla pública comienza la cuenta regresiva.</p>
+      <div class="draw-grid">
+        <div class="field"><label for="drawLogoUrl">Logo del boliche (URL de imagen o GIF)</label><input id="drawLogoUrl" type="url" placeholder="https://.../logo.gif"></div>
+        <div class="field"><label for="drawCountdownMinutes">Cuenta regresiva en minutos</label><input id="drawCountdownMinutes" type="number" min="0" max="120" step="1" value="10"></div>
+      </div>
+      <p id="drawParticipantCount" class="draw-count">Consultando participantes...</p>
+      <button id="startDrawButton" type="button">Iniciar cuenta regresiva</button>
+      <p id="drawStatus" class="status"></p>
+      <a class="draw-link" href="pantalla-sorteo.html" target="_blank" rel="noopener">Abrir pantalla para proyectar</a>
+      <a class="draw-link" href="control-remoto.html" target="_blank" rel="noopener" style="margin-left: 20px; color: var(--pink)">Abrir Control Móvil</a>
+    </section>
+
+    <section class="panel winners-list">
+      <h2>Lista de Ganadores (Fuera de sorteo)</h2>
+      <p class="notice">Estas personas ya ganaron y no aparecerán en nuevos sorteos hasta que las vuelvas a incluir.</p>
+      <div id="winnersList" class="birthday-list"></div>
+    </section>
+  </section>
+</main>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
+    authDomain: 'cuba-eventos.firebaseapp.com',
+    projectId: 'cuba-eventos',
+    storageBucket: 'cuba-eventos.firebasestorage.app',
+    messagingSenderId: '504683487458',
+    appId: '1:504683487458:web:724f3fb58f18c25b847ebb'
+  };
+  const ADMIN_EMAILS = ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const loginView = document.getElementById('loginView');
+  const adminView = document.getElementById('adminView');
+  const account = document.getElementById('account');
+  const form = document.getElementById('settingsForm');
+  const saveStatus = document.getElementById('saveStatus');
+  const fields = ['logoUrl','backgroundColor','accentColor','bodyFont','displayFont','kicker','headline','introBefore','prize','introAfter','nameLabel','dateLabel','phoneLabel','consent','marketing','promoTitle','promoText','promoImage','submit','footNote','successTitle','successText'];
+  const defaults = {logoUrl:'',backgroundColor:'#0B0713',accentColor:'#FF3D9A',bodyFont:'Work Sans',displayFont:'Big Shoulders Display',kicker:'Sorteo activo esta noche',headline:'Participá y ganá',introBefore:'Completá tus datos para entrar en el sorteo de',prize:'[NOMBRE DEL PREMIO]',introAfter:'Si salís ganador/a te avisamos por celular.',nameLabel:'Nombre y apellido',dateLabel:'Fecha de cumpleaños',phoneLabel:'Número de celular',consent:'Acepto que traten mis datos personales para gestionar mi participación en el sorteo, conforme a la Ley 25.326. Puedo pedir que los borren cuando quiera escribiendo a [tu email de contacto].',marketing:'Quiero recibir promociones y novedades por redes sociales o WhatsApp.',promoTitle:'',promoText:'',promoImage:'',submit:'Confirmar participación',footNote:'Tus datos se usan solo para este sorteo. No los compartimos con terceros.',successTitle:'¡Ya estás participando!',successText:'Guardá este número por si te contactamos para confirmar el premio.'};
+
+  function fillForm(settings){ fields.forEach(key => { document.getElementById(key).value = settings[key] ?? defaults[key] ?? ''; }); }
+  function readForm(){ return Object.fromEntries(fields.map(key => [key, document.getElementById(key).value])); }
+  function setLoggedIn(user){ loginView.hidden = true; adminView.hidden = false; account.textContent = `Sesión: ${user.email}`; }
+  async function loadDrawCount(){
+    const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
+    const active = snapshot.docs.filter(d => d.data().ya_gano !== true);
+    document.getElementById('drawParticipantCount').textContent = `${active.length} participantes habilitados para el sorteo`;
+    document.getElementById('startDrawButton').disabled = active.length === 0;
+    return snapshot;
+  }
+
+  async function loadWinners(){
+    const list = document.getElementById('winnersList');
+    const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
+    const winners = snapshot.docs.filter(d => d.data().ya_gano === true);
+    list.replaceChildren();
+    if(!winners.length){
+      list.innerHTML = '<p class="empty">No hay ganadores registrados todavía.</p>';
+      return;
+    }
+    winners.forEach(docSnap => {
+      const item = docSnap.data();
+      const card = document.createElement('article');
+      card.className = 'birthday-item';
+      card.innerHTML = `
+        <div class="birthday-name">${item.nombre || 'Sin nombre'}</div>
+        <div class="birthday-phone">${item.celular || 'Sin celular'}</div>
+        <button class="secondary" style="margin-top:10px; width:100%; font-size:11px" onclick="reincluir('${docSnap.id}')">Re-incluir en lista</button>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  window.reincluir = async (id) => {
+    if(confirm("¿Querés que esta persona pueda volver a ganar?")) {
+      await updateDoc(doc(db, 'participantes_sorteo', id), { ya_gano: false });
+      await loadWinners();
+      await loadDrawCount();
+    }
+  };
+
+  function nextBirthday(dateValue, today = new Date()){
+    const [year, month, day] = dateValue.split('-').map(Number);
+    if(!year || !month || !day) return null;
+    const birthday = new Date(today.getFullYear(), month - 1, day);
+    birthday.setHours(0, 0, 0, 0);
+    const reference = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if(birthday < reference) birthday.setFullYear(today.getFullYear() + 1);
+    return birthday;
+  }
+  async function loadBirthdays(){
+    const notice = document.getElementById('birthdayNotice');
+    const list = document.getElementById('birthdayList');
+    try{
+      const today = new Date();
+      const weekEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+      const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
+      const birthdays = snapshot.docs.map(item => ({ id: item.id, ...item.data(), nextDate: nextBirthday(item.data().fecha_nacimiento, today) }))
+        .filter(item => item.nextDate)
+        .sort((first, second) => first.nextDate - second.nextDate);
+      const thisWeek = birthdays.filter(item => item.nextDate <= weekEnd);
+      notice.textContent = thisWeek.length ? `Hay ${thisWeek.length} cumpleaños en los próximos 7 días.` : 'No hay cumpleaños en los próximos 7 días.';
+      list.replaceChildren();
+      if(!birthdays.length){
+        const empty = document.createElement('p');
+        empty.className = 'empty';
+        empty.textContent = 'Todavía no hay participantes con fecha de cumpleaños válida.';
+        list.appendChild(empty);
+      } else birthdays.forEach(item => {
+        const card = document.createElement('article');
+        card.className = 'birthday-item';
+        const date = document.createElement('div');
+        date.className = 'birthday-date';
+        date.textContent = item.nextDate.toLocaleDateString('es-AR', { day: '2-digit', month: 'long' });
+        const name = document.createElement('div');
+        name.className = 'birthday-name';
+        name.textContent = item.nombre || 'Sin nombre';
+        const phone = document.createElement('div');
+        phone.className = 'birthday-phone';
+        phone.textContent = item.celular || 'Sin celular';
+        card.append(date, name, phone);
+        list.appendChild(card);
+      });
+    }catch(error){
+      notice.textContent = 'No se pudieron consultar los cumpleaños.';
+      list.innerHTML = '<p class="empty">Revisá las reglas de lectura de participantes para la cuenta administradora.</p>';
+      console.error(error);
+    }
+  }
+  document.getElementById('loginButton').addEventListener('click', async () => { try { await signInWithPopup(auth, provider); } catch(error) { document.getElementById('loginError').textContent = error.message; } });
+  document.getElementById('logoutButton').addEventListener('click', () => signOut(auth));
+  document.getElementById('startDrawButton').addEventListener('click', async () => {
+    const button = document.getElementById('startDrawButton');
+    const drawStatus = document.getElementById('drawStatus');
+    button.disabled = true;
+    drawStatus.textContent = 'Preparando participantes...';
+    try{
+      const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
+      const entries = snapshot.docs
+        .filter(item => item.data().ya_gano !== true)
+        .map((item, index) => ({
+          id: item.id,
+          nombre: item.data().nombre || `Participante ${index + 1}`,
+          celular: item.data().celular || '',
+          fecha_nacimiento: item.data().fecha_nacimiento || '',
+          numero: index + 1
+        }));
+      if(!entries.length) throw new Error('No hay participantes habilitados.');
+      const logoUrl = document.getElementById('drawLogoUrl').value.trim();
+      const minutes = Math.max(0, Math.min(120, Number(document.getElementById('drawCountdownMinutes').value) || 10));
+      const winnerIndex = Math.floor(Math.random() * entries.length);
+      const winner = entries[winnerIndex];
+
+      // Registrar al ganador en Firestore
+      await updateDoc(doc(db, 'participantes_sorteo', winner.id), {
+        ya_gano: true,
+        fecha_ganador: serverTimestamp()
+      });
+
+      await setDoc(doc(db, 'sorteo', 'configuracion'), { logoUrl });
+      await setDoc(doc(db, 'sorteo', 'actual'), {
+        status: 'countdown',
+        entries,
+        winnerIndex,
+        winnerId: winner.id,
+        winnerData: {
+          id: winner.id,
+          nombre: winner.nombre,
+          celular: winner.celular,
+          fecha_nacimiento: winner.fecha_nacimiento,
+          numero: winner.numero
+        },
+        logoUrl,
+        durationMinutes: minutes,
+        serverStartAt: serverTimestamp(),
+        duration: 9000
+      });
+      drawStatus.textContent = `Cuenta regresiva iniciada: ${minutes} minutos. Ganador asignado: ${winner.nombre}`;
+      await loadDrawCount();
+      await loadWinners();
+    }catch(error){ drawStatus.textContent = `No se pudo iniciar: ${error.message}`; button.disabled = false; }
+  });
+  form.addEventListener('submit', async event => { event.preventDefault(); saveStatus.textContent = 'Guardando...'; document.getElementById('saveButton').disabled = true; try { await setDoc(doc(db, 'configuracion', 'formulario'), readForm()); saveStatus.textContent = 'Cambios guardados. Recargá la vista previa para verlos.'; } catch(error) { saveStatus.textContent = `No se pudo guardar: ${error.message}`; } finally { document.getElementById('saveButton').disabled = false; } });
+  onAuthStateChanged(auth, async user => {
+    const isLocal = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+    if (isLocal) {
+      console.log("Modo Desarrollador Activo");
+      loginView.hidden = true;
+      adminView.hidden = false;
+      account.textContent = "Modo Desarrollador (Local)";
+      const snapshot = await getDoc(doc(db, 'configuracion', 'formulario'));
+      fillForm(snapshot.exists() ? {...defaults, ...snapshot.data()} : defaults);
+      loadBirthdays();
+      loadDrawCount();
+      loadWinners();
+      return;
+    }
+
+    if (!user) { account.textContent = 'Sesión no iniciada'; loginView.hidden = false; adminView.hidden = true; return; }
+    if (!ADMIN_EMAILS.includes(user.email)) {
+      account.textContent = `Cuenta no autorizada: ${user.email}`;
+      loginView.hidden = false;
+      adminView.hidden = true;
+      document.getElementById('loginError').textContent = `Ingresaste con ${user.email}. No tenés permisos de administración.`;
+      await signOut(auth);
+      return;
+    }
+    setLoggedIn(user);
+    const snapshot = await getDoc(doc(db, 'configuracion', 'formulario'));
+    fillForm(snapshot.exists() ? {...defaults, ...snapshot.data()} : defaults);
+    const drawConfig = await getDoc(doc(db, 'sorteo', 'configuracion'));
+    if(drawConfig.exists()) document.getElementById('drawLogoUrl').value = drawConfig.data().logoUrl || '';
+    await loadBirthdays();
+    await loadDrawCount();
+    await loadWinners();
+  });
+</script>
+</body>
+</html>

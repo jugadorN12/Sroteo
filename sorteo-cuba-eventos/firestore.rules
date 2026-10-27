@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /participantes_sorteo/{docId} {
+      allow create: if request.resource.data.keys().hasAll(['nombre', 'fecha_nacimiento', 'celular', 'consentimiento_datos'])
+                    && request.resource.data.consentimiento_datos == true;
+      allow read, update, delete: if request.auth != null
+                  && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+    }
+    match /configuracion/formulario {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+    }
+    match /sorteo/actual {
+      allow read: if true;
+      allow write: if request.auth != null
+                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+    }
+    match /sorteo/configuracion {
+      allow read, write: if request.auth != null
+                  && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+    }
+  }
+}
