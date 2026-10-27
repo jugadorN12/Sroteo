@@ -599,8 +599,13 @@
 
   resetBtn.onclick = async () => {
     if (confirm("¿Estás seguro de resetear la pantalla del sorteo?")) {
+      let logoUrl = '';
+      try {
+        const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
+        if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
+      } catch (e) {}
       const batch = writeBatch(db);
-      batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [] });
+      batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl });
       batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
       await batch.commit();
       winnerCard.hidden = true;

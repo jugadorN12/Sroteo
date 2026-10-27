@@ -50,9 +50,10 @@ service cloud.firestore {
                    && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
     }
 
-    // Configuración general del sorteo
+    // Configuración general del sorteo (logo de pantalla)
     match /sorteo/configuracion {
-      allow read, write: if request.auth != null
+      allow read: if true;
+      allow write: if request.auth != null
                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
     }
   }

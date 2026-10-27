@@ -129,7 +129,7 @@ h1{font-size:clamp(42px,8vw,110px);line-height:.9;margin:14px 0 28px;text-transf
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore, doc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { getFirestore, doc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const config = {
   apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
@@ -381,20 +381,37 @@ function startRoll(data, playDrum = true, durationMs = 9000){
   }, rollDuration);
 }
 
+async function loadSavedLogo() {
+  try {
+    const snapConfig = await getDoc(doc(db, 'sorteo', 'configuracion'));
+    if (snapConfig.exists() && snapConfig.data().logoUrl) {
+      logo.src = snapConfig.data().logoUrl;
+      logo.hidden = false;
+      logo.style.display = 'block';
+      return;
+    }
+    const snapForm = await getDoc(doc(db, 'configuracion', 'formulario'));
+    if (snapForm.exists() && snapForm.data().logoUrl) {
+      logo.src = snapForm.data().logoUrl;
+      logo.hidden = false;
+      logo.style.display = 'block';
+    }
+  } catch(e) {}
+}
+loadSavedLogo();
+
 onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
   if(!snapshot.exists()) return;
   const data = snapshot.data();
 
-  if(data.status === 'idle') { resetScreen(); return; }
-
+  // Asegurar que el logo se muestre primero si viene en el documento
   if(data.logoUrl){
     logo.src = data.logoUrl;
     logo.hidden = false;
     logo.style.display = 'block';
-  } else {
-    logo.hidden = true;
-    logo.style.display = 'none';
   }
+
+  if(data.status === 'idle') { resetScreen(); return; }
 
   const entries = data.entries || [];
   if(!entries.length) return;
