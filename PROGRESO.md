@@ -16,8 +16,7 @@
 
 - [x] **Despliegue a producción de v1.2.0**: Reglas y formulario anti-duplicados activos en Firebase Hosting y Cloud Firestore.
 
-## En Curso
-- [ ] Verificación final y prueba de flujo completo.
+- [x] **Limpieza de archivos obsoletos**: Borrado de `formulario-sorteo.html` en la raíz y de la carpeta `backup_local_/`.
 
-## Siguiente
-- [ ] Retiro o archivo de versiones redundantes (`formulario-sorteo.html` de la raíz).
+## En Curso
+- [ ] Verificación en vivo y prueba de flujo completo.

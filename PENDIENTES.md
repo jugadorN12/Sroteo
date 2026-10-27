@@ -7,11 +7,9 @@
 - [x] **Transacciones atómicas**: Sincronización conjunta de ganadores con `writeBatch`.
 - [x] **Despliegue a producción**: Versión 1.2.0 activa en Firebase Hosting y Firestore.
 
-## Pendientes actuales
+- [x] **Limpieza de archivos obsoletos**: Se eliminaron `formulario-sorteo.html` de la raíz y la subcarpeta `backup_local_/`.
 
-### 1. Limpieza y orden (Inmediato)
-- [ ] Eliminar borrador viejo `formulario-sorteo.html` de la raíz.
-- [ ] Revisar o archivar la subcarpeta `sorteo-cuba-eventos/backup_local_/`.
+## Pendientes actuales
 
 ### 2. Pruebas y verificación (QA)
 - [ ] Probar el flujo de registro real en un celular y verificar el rechazo de celular duplicado.
