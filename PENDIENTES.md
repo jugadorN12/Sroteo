@@ -1,10 +1,22 @@
 # Tareas Pendientes y Mejoras Futuras (PENDIENTES)
 
-## Seguridad
-- [ ] **Proteger datos privados en sorteo en vivo**: No guardar celulares ni fechas de nacimiento en `sorteo/actual` ya que es de lectura pública.
-- [ ] **Validación en Firestore Rules**: Forzar tipos de datos (`string`, `bool`) y limitar largo máximo de texto para evitar payloads maliciosos.
-- [ ] **Roles dinámicos**: Migrar la lista de correos fijos en `firestore.rules` a Custom Claims o colección interna de roles.
+## Hecho recientemente
+- [x] **Proteger datos privados en sorteo en vivo**: Números de celular y fechas de nacimiento ya no viajan al canal público.
+- [x] **Validación estricta en Firestore Rules**: Forzado de tipos (`string`, `bool`), largos máximos y campos autorizados.
+- [x] **Control anti-duplicados por celular**: Normalización de teléfonos y bloqueo por noche de evento (con corte a las 07:00 AM).
+- [x] **Transacciones atómicas**: Sincronización conjunta de ganadores con `writeBatch`.
+- [x] **Despliegue a producción**: Versión 1.2.0 activa en Firebase Hosting y Firestore.
 
-## Funcionalidad y Negocio
-- [ ] **Anti-duplicados**: Validar si un número de celular ya participó en la misma fecha para evitar inscripciones masivas de un mismo usuario.
-- [ ] **Limpieza de código**: Retirar `formulario-sorteo.html` de la raíz si ya se reemplazó completamente por `sorteo-cuba-eventos/index.html`.
+## Pendientes actuales
+
+### 1. Limpieza y orden (Inmediato)
+- [ ] Eliminar borrador viejo `formulario-sorteo.html` de la raíz.
+- [ ] Revisar o archivar la subcarpeta `sorteo-cuba-eventos/backup_local_/`.
+
+### 2. Pruebas y verificación (QA)
+- [ ] Probar el flujo de registro real en un celular y verificar el rechazo de celular duplicado.
+- [ ] Probar el giro de ruleta y el botón de WhatsApp al ganador desde el control remoto.
+
+### 3. Mejoras operativas (Para más adelante / v2)
+- [ ] **Roles dinámicos**: Poder agregar y quitar correos de administradores (staff/animadores) desde el panel de administración, sin tener que editar código en `firestore.rules`.
+- [ ] **Filtro por noche en la lista de participantes**: En `participantes.html`, poder filtrar participantes por fecha de evento para separar los inscriptos de cada noche.
