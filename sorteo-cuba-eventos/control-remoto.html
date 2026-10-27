@@ -331,7 +331,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, onSnapshot, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, onSnapshot, updateDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
   const firebaseConfig = {
@@ -484,7 +484,6 @@
         statusText.style.color = "var(--pink)";
       } else if (data.status === 'express' || data.status === 'spinning') {
         statusText.textContent = "SORTEANDO EN PANTALLA...";
-        statusText.style.color = "var(--cyan)";
       } else if (data.status === 'idle') {
         statusText.textContent = "SISTEMA LISTO";
         statusText.style.color = "var(--cyan)";
@@ -494,9 +493,14 @@
         statusText.textContent = "SISTEMA LISTO";
         statusText.style.color = "var(--cyan)";
       }
+    });
 
-      if (data.winnerData) {
-        showWinnerInfo(data.winnerData);
+    // Escuchar los datos privados del ganador (solo accesibles para admin)
+    onSnapshot(doc(db, 'sorteo', 'privado_ganador'), snap => {
+      if (snap.exists() && snap.data().winnerData) {
+        showWinnerInfo(snap.data().winnerData);
+      } else {
+        winnerCard.hidden = true;
       }
     });
 
@@ -516,7 +520,7 @@
     try {
       statusText.textContent = "PREPARANDO...";
       const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
-      const entries = snapshot.docs
+      const fullEntries = snapshot.docs
         .filter(d => d.data().ya_gano !== true)
         .map((d, i) => ({
           id: d.id,
@@ -526,13 +530,13 @@
           numero: i + 1
         }));
 
-      if (entries.length === 0) {
+      if (fullEntries.length === 0) {
         statusText.textContent = "SISTEMA LISTO";
         return alert("No hay participantes habilitados para el sorteo.");
       }
 
-      const winnerIndex = Math.floor(Math.random() * entries.length);
-      const winner = entries[winnerIndex];
+      const winnerIndex = Math.floor(Math.random() * fullEntries.length);
+      const winner = fullEntries[winnerIndex];
 
       let logoUrl = '';
       try {
@@ -542,31 +546,41 @@
 
       const minutes = parseInt(document.getElementById('minutes').value) || 10;
 
-      // 1. Marcar de inmediato al ganador en Firestore para que quede registrado y fuera de juego
-      await updateDoc(doc(db, 'participantes_sorteo', winner.id), {
+      // Lista pública para proyectar (SOLO nombre y número)
+      const publicEntries = fullEntries.map(e => ({ numero: e.numero, nombre: e.nombre }));
+      const publicWinner = { numero: winner.numero, nombre: winner.nombre };
+
+      // Datos privados de contacto para administradores
+      const privateWinner = {
+        id: winner.id,
+        nombre: winner.nombre,
+        celular: winner.celular,
+        fecha_nacimiento: winner.fecha_nacimiento,
+        numero: winner.numero
+      };
+
+      // Guardar todo de forma atómica en Firestore
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'participantes_sorteo', winner.id), {
         ya_gano: true,
         fecha_ganador: serverTimestamp()
       });
-
-      // 2. Disparar el sorteo hacia la pantalla en vivo guardando los datos para contacto
-      await setDoc(doc(db, 'sorteo', 'actual'), {
+      batch.set(doc(db, 'sorteo', 'actual'), {
         status: mode === 'express' ? 'express' : 'countdown',
-        entries,
+        entries: publicEntries,
         winnerIndex,
-        winnerId: winner.id,
-        winnerData: {
-          id: winner.id,
-          nombre: winner.nombre,
-          celular: winner.celular,
-          fecha_nacimiento: winner.fecha_nacimiento,
-          numero: winner.numero
-        },
+        winnerData: publicWinner,
         logoUrl,
         durationMinutes: minutes,
         serverStartAt: serverTimestamp(),
         duration: 9000
       });
+      batch.set(doc(db, 'sorteo', 'privado_ganador'), {
+        winnerData: privateWinner,
+        updatedAt: serverTimestamp()
+      });
 
+      await batch.commit();
       showWinnerInfo(winner);
 
     } catch (error) {
@@ -585,7 +599,10 @@
 
   resetBtn.onclick = async () => {
     if (confirm("¿Estás seguro de resetear la pantalla del sorteo?")) {
-      await setDoc(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [] });
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [] });
+      batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
+      await batch.commit();
       winnerCard.hidden = true;
     }
   };

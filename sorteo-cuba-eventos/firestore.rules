@@ -1,22 +1,47 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Formulario de inscripción pública
     match /participantes_sorteo/{docId} {
       allow create: if request.resource.data.keys().hasAll(['nombre', 'fecha_nacimiento', 'celular', 'consentimiento_datos'])
-                    && request.resource.data.consentimiento_datos == true;
+                    && request.resource.data.keys().hasOnly(['nombre', 'fecha_nacimiento', 'celular', 'consentimiento_datos', 'fecha_consentimiento', 'acepta_marketing', 'ya_gano', 'creado'])
+                    && request.resource.data.consentimiento_datos == true
+                    && request.resource.data.ya_gano == false
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.size() >= 2
+                    && request.resource.data.nombre.size() <= 80
+                    && request.resource.data.celular is string
+                    && request.resource.data.celular.size() >= 8
+                    && request.resource.data.celular.size() <= 25
+                    && request.resource.data.fecha_nacimiento is string
+                    && request.resource.data.fecha_nacimiento.size() == 10;
+
       allow read, update, delete: if request.auth != null
                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
     }
+
+    // Configuración estética del formulario (público)
     match /configuracion/formulario {
       allow read: if true;
       allow write: if request.auth != null
                    && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
     }
+
+    // Pantalla pública del sorteo en vivo (NO CONTIENE DATOS PRIVADOS)
     match /sorteo/actual {
       allow read: if true;
       allow write: if request.auth != null
                    && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
     }
+
+    // Datos privados del ganador para el staff/animador (celular y fecha de nacimiento)
+    match /sorteo/privado_ganador {
+      allow read, write: if request.auth != null
+                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+    }
+
+    // Configuración general del sorteo
     match /sorteo/configuracion {
       allow read, write: if request.auth != null
                   && request.auth.token.email in ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];

@@ -90,7 +90,7 @@
 </main>
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, where, updateDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
   const firebaseConfig = {
@@ -212,7 +212,7 @@
     drawStatus.textContent = 'Preparando participantes...';
     try{
       const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
-      const entries = snapshot.docs
+      const fullEntries = snapshot.docs
         .filter(item => item.data().ya_gano !== true)
         .map((item, index) => ({
           id: item.id,
@@ -221,36 +221,49 @@
           fecha_nacimiento: item.data().fecha_nacimiento || '',
           numero: index + 1
         }));
-      if(!entries.length) throw new Error('No hay participantes habilitados.');
+      if(!fullEntries.length) throw new Error('No hay participantes habilitados.');
       const logoUrl = document.getElementById('drawLogoUrl').value.trim();
       const minutes = Math.max(0, Math.min(120, Number(document.getElementById('drawCountdownMinutes').value) || 10));
-      const winnerIndex = Math.floor(Math.random() * entries.length);
-      const winner = entries[winnerIndex];
+      const winnerIndex = Math.floor(Math.random() * fullEntries.length);
+      const winner = fullEntries[winnerIndex];
 
-      // Registrar al ganador en Firestore
-      await updateDoc(doc(db, 'participantes_sorteo', winner.id), {
+      // Lista pública para proyectar (SOLO nombre y número, sin celulares ni cumpleaños)
+      const publicEntries = fullEntries.map(e => ({ numero: e.numero, nombre: e.nombre }));
+      const publicWinner = { numero: winner.numero, nombre: winner.nombre };
+
+      // Datos privados de contacto para administradores
+      const privateWinner = {
+        id: winner.id,
+        nombre: winner.nombre,
+        celular: winner.celular,
+        fecha_nacimiento: winner.fecha_nacimiento,
+        numero: winner.numero
+      };
+
+      // Guardar todo de forma atómica (transacción por lote)
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'participantes_sorteo', winner.id), {
         ya_gano: true,
         fecha_ganador: serverTimestamp()
       });
-
-      await setDoc(doc(db, 'sorteo', 'configuracion'), { logoUrl });
-      await setDoc(doc(db, 'sorteo', 'actual'), {
+      batch.set(doc(db, 'sorteo', 'configuracion'), { logoUrl });
+      batch.set(doc(db, 'sorteo', 'actual'), {
         status: 'countdown',
-        entries,
+        entries: publicEntries,
         winnerIndex,
-        winnerId: winner.id,
-        winnerData: {
-          id: winner.id,
-          nombre: winner.nombre,
-          celular: winner.celular,
-          fecha_nacimiento: winner.fecha_nacimiento,
-          numero: winner.numero
-        },
+        winnerData: publicWinner,
         logoUrl,
         durationMinutes: minutes,
         serverStartAt: serverTimestamp(),
         duration: 9000
       });
+      batch.set(doc(db, 'sorteo', 'privado_ganador'), {
+        winnerData: privateWinner,
+        updatedAt: serverTimestamp()
+      });
+
+      await batch.commit();
+
       drawStatus.textContent = `Cuenta regresiva iniciada: ${minutes} minutos. Ganador asignado: ${winner.nombre}`;
       await loadDrawCount();
       await loadWinners();
