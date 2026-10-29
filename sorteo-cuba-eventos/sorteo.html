@@ -1,471 +1,689 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sorteo en vivo | Cuba Eventos</title>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<style>
-:root{--pink:#ff3d9a;--cyan:#33e1e8;--violet:#8b5cf6}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;overflow:hidden;background:linear-gradient(rgba(16,11,24,0.60), rgba(16,11,24,0.72)), url('fondo-halloween.jpg') center/cover no-repeat fixed #100b18;color:#fff;font-family:Arial,sans-serif;text-align:center}
-.wrap{width:min(92vw,1100px);position:relative;z-index:2}
-#logo{display:block;max-width:min(70vw,360px);max-height:150px;object-fit:contain;margin:0 auto 18px;border-radius:10px;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.8))}
-.eyebrow{color:var(--cyan);font-size:clamp(12px,1.5vw,18px);font-weight:bold;letter-spacing:.2em;text-transform:uppercase;text-shadow:0 2px 12px rgba(0,0,0,0.9)}
-h1{font-size:clamp(42px,8vw,110px);line-height:.9;margin:14px 0 28px;text-transform:uppercase;text-shadow:0 6px 24px rgba(0,0,0,0.85), 0 0 45px rgba(255,61,154,0.45)}
-#meta{color:#e2d9ee;font-size:clamp(15px,2vw,24px);min-height:30px;text-shadow:0 2px 10px rgba(0,0,0,0.9)}
-.countdown{font-size:clamp(60px,13vw,170px);font-weight:bold;line-height:1;color:#fff;text-shadow:0 0 35px #33e1e8aa;letter-spacing:.03em}
-.countdown-label{color:#b7a9c9;font-size:clamp(16px,2.5vw,30px);margin-top:18px}
-.wheel{height:clamp(145px,24vw,280px);display:grid;place-items:center;margin:25px 0;border-top:2px solid #ffffff33;border-bottom:2px solid #ffffff33;overflow:hidden;position:relative;background:#ffffff0d}
-.wheel:before,.wheel:after{content:'';position:absolute;left:0;right:0;height:35%;z-index:2;pointer-events:none}.wheel:before{top:0;background:linear-gradient(#100b18,transparent)}.wheel:after{bottom:0;background:linear-gradient(transparent,#100b18)}
-#name{font-size:clamp(40px,8vw,108px);font-weight:bold;position:relative;z-index:3;text-shadow:0 0 30px #ff3d9a99}#name.spinning{animation:jitter .09s linear infinite}
-@keyframes jitter{0%{transform:translateY(-9px) rotate(-1deg)}50%{transform:translateY(8px) rotate(1deg)}100%{transform:translateY(-4px)}}
-#winner{display:none}
-.winner-label{color:var(--pink);font-weight:bold;font-size:clamp(20px,3vw,42px);letter-spacing:.15em;text-transform:uppercase;animation:pulse 1.2s infinite alternate}
-@keyframes pulse{0%{opacity:0.8;transform:scale(0.98)}100%{opacity:1;transform:scale(1.02)}}
-.winner-row{display:flex;align-items:center;justify-content:center;gap:clamp(12px, 3vw, 36px);margin:14px 0}
-.firework-side{font-size:clamp(32px, 6vw, 75px);animation:fireworkBounce 1s infinite alternate ease-in-out;filter:drop-shadow(0 0 15px #ffe600)}
-.firework-left{animation-delay:0s}
-.firework-right{animation-delay:0.35s}
-@keyframes fireworkBounce{0%{transform:scale(0.85) rotate(-10deg)}100%{transform:scale(1.25) rotate(10deg)}}
-.winner-name{font-size:clamp(60px,13vw,190px);font-weight:900;line-height:.95;margin:0;color:#fff;text-shadow:0 0 45px #ff3d9a, 0 0 85px rgba(255,61,154,0.6)}
-.number{color:var(--cyan);font-size:clamp(20px,3vw,36px)}
-.waiting{color:#b7a9c9;font-size:clamp(18px,3vw,34px)}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sorteo en vivo | Cuba Eventos</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --pink: #ff3d9a;
+      --cyan: #33e1e8;
+      --violet: #8b5cf6
+    }
 
-/* Top bar controls */
-.top-controls {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
-  display: flex;
-  gap: 10px;
-}
-.ctrl-btn {
-  background: rgba(29, 20, 40, 0.88);
-  border: 1px solid rgba(255,255,255,0.22);
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  backdrop-filter: blur(12px);
-  transition: all 0.2s ease;
-}
-.ctrl-btn:hover {
-  border-color: var(--cyan);
-  background: rgba(51, 225, 232, 0.2);
-}
+    * {
+      box-sizing: border-box
+    }
 
-/* Big Audio Activation Banner */
-.audio-banner {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999;
-  background: linear-gradient(100deg, var(--pink), var(--violet));
-  box-shadow: 0 10px 40px rgba(255, 61, 154, 0.6);
-  color: white;
-  padding: 16px 28px;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: bounce 1.5s infinite;
-}
-@keyframes bounce {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, -8px); }
-}
-[hidden] { display: none !important; }
-</style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: linear-gradient(rgba(16, 11, 24, 0.60), rgba(16, 11, 24, 0.72)), url('fondo-halloween.jpg') center/cover no-repeat fixed #100b18;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center
+    }
+
+    .wrap {
+      width: min(92vw, 1100px);
+      position: relative;
+      z-index: 2
+    }
+
+    #logo {
+      display: block;
+      max-width: min(70vw, 360px);
+      max-height: 150px;
+      object-fit: contain;
+      margin: 0 auto 18px;
+      border-radius: 10px;
+      filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.8))
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: clamp(12px, 1.5vw, 18px);
+      font-weight: bold;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9)
+    }
+
+    h1 {
+      font-size: clamp(42px, 8vw, 110px);
+      line-height: .9;
+      margin: 14px 0 28px;
+      text-transform: uppercase;
+      text-shadow: 0 6px 24px rgba(0, 0, 0, 0.85), 0 0 45px rgba(255, 61, 154, 0.45)
+    }
+
+    #meta {
+      color: #e2d9ee;
+      font-size: clamp(15px, 2vw, 24px);
+      min-height: 30px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9)
+    }
+
+    .countdown {
+      font-size: clamp(60px, 13vw, 170px);
+      font-weight: bold;
+      line-height: 1;
+      color: #fff;
+      text-shadow: 0 0 35px #33e1e8aa;
+      letter-spacing: .03em
+    }
+
+    .countdown-label {
+      color: #b7a9c9;
+      font-size: clamp(16px, 2.5vw, 30px);
+      margin-top: 18px
+    }
+
+    .wheel {
+      height: clamp(145px, 24vw, 280px);
+      display: grid;
+      place-items: center;
+      margin: 25px 0;
+      border-top: 2px solid #ffffff33;
+      border-bottom: 2px solid #ffffff33;
+      overflow: hidden;
+      position: relative;
+      background: #ffffff0d
+    }
+
+    .wheel:before,
+    .wheel:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 35%;
+      z-index: 2;
+      pointer-events: none
+    }
+
+    .wheel:before {
+      top: 0;
+      background: linear-gradient(#100b18, transparent)
+    }
+
+    .wheel:after {
+      bottom: 0;
+      background: linear-gradient(transparent, #100b18)
+    }
+
+    #name {
+      font-size: clamp(40px, 8vw, 108px);
+      font-weight: bold;
+      position: relative;
+      z-index: 3;
+      text-shadow: 0 0 30px #ff3d9a99
+    }
+
+    #name.spinning {
+      animation: jitter .09s linear infinite
+    }
+
+    @keyframes jitter {
+      0% {
+        transform: translateY(-9px) rotate(-1deg)
+      }
+
+      50% {
+        transform: translateY(8px) rotate(1deg)
+      }
+
+      100% {
+        transform: translateY(-4px)
+      }
+    }
+
+    #winner {
+      display: none
+    }
+
+    .winner-label {
+      color: var(--pink);
+      font-weight: bold;
+      font-size: clamp(20px, 3vw, 42px);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      animation: pulse 1.2s infinite alternate
+    }
+
+    @keyframes pulse {
+      0% {
+        opacity: 0.8;
+        transform: scale(0.98)
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1.02)
+      }
+    }
+
+    .winner-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 3vw, 36px);
+      margin: 14px 0
+    }
+
+    .firework-side {
+      font-size: clamp(32px, 6vw, 75px);
+      animation: fireworkBounce 1s infinite alternate ease-in-out;
+      filter: drop-shadow(0 0 15px #ffe600)
+    }
+
+    .firework-left {
+      animation-delay: 0s
+    }
+
+    .firework-right {
+      animation-delay: 0.35s
+    }
+
+    @keyframes fireworkBounce {
+      0% {
+        transform: scale(0.85) rotate(-10deg)
+      }
+
+      100% {
+        transform: scale(1.25) rotate(10deg)
+      }
+    }
+
+    .winner-name {
+      font-size: clamp(60px, 13vw, 190px);
+      font-weight: 900;
+      line-height: .95;
+      margin: 0;
+      color: #fff;
+      text-shadow: 0 0 45px #ff3d9a, 0 0 85px rgba(255, 61, 154, 0.6)
+    }
+
+    .number {
+      color: var(--cyan);
+      font-size: clamp(20px, 3vw, 36px)
+    }
+
+    .waiting {
+      color: #b7a9c9;
+      font-size: clamp(18px, 3vw, 34px)
+    }
+
+    /* Top bar controls */
+    .top-controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      gap: 10px;
+    }
+
+    .ctrl-btn {
+      background: rgba(29, 20, 40, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      border-color: var(--cyan);
+      background: rgba(51, 225, 232, 0.2);
+    }
+
+    /* Big Audio Activation Banner */
+    .audio-banner {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      background: linear-gradient(100deg, var(--pink), var(--violet));
+      box-shadow: 0 10px 40px rgba(255, 61, 154, 0.6);
+      color: white;
+      padding: 16px 28px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: bounce 1.5s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translate(-50%, 0);
+      }
+
+      50% {
+        transform: translate(-50%, -8px);
+      }
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="audioBanner" class="audio-banner">
-  <span>🔊</span> <span>HACÉ CLIC EN CUALQUIER PARTE PARA HABILITAR EL AUDIO</span>
-</div>
+  <div id="audioBanner" class="audio-banner">
+    <span>🔊</span> <span>HACÉ CLIC EN CUALQUIER PARTE PARA HABILITAR EL AUDIO</span>
+  </div>
 
-<div class="top-controls">
-  <button id="testAudioBtn" class="ctrl-btn" type="button" title="Probar sonido real de redoblante y trompetas">
-    🎵 Probar Sonido Real
-  </button>
-  <button id="soundToggle" class="ctrl-btn" type="button">
-    <span id="soundIcon">🔊</span> <span id="soundLabel">Sonido Activado</span>
-  </button>
-</div>
+  <div class="top-controls">
+    <button id="testAudioBtn" class="ctrl-btn" type="button" title="Probar sonido real de redoblante y trompetas">
+      🎵 Probar Sonido Real
+    </button>
+    <button id="soundToggle" class="ctrl-btn" type="button">
+      <span id="soundIcon">🔊</span> <span id="soundLabel">Sonido Activado</span>
+    </button>
+  </div>
 
-<main class="wrap">
-  <img id="logo" alt="Logo del boliche" hidden>
-  <div class="eyebrow">Cuba Eventos presenta</div>
-  <h1>¡Sorteo en vivo!</h1>
-  <section id="waiting" class="waiting">Esperando el próximo sorteo...</section>
-  <section id="countdownView" hidden>
-    <div class="countdown" id="countdown">10:00.000</div>
-    <div class="countdown-label">El sorteo comienza en</div>
-  </section>
-  <section id="game" hidden>
-    <div id="meta"></div>
-    <div class="wheel"><div id="name"></div></div>
-  </section>
-  <section id="winner">
-    <div class="winner-label">✨ ¡PERSONA GANADORA! ✨</div>
-    <div class="winner-row">
-      <span class="firework-side firework-left">🎆</span>
-      <div class="winner-name" id="winnerName"></div>
-      <span class="firework-side firework-right">🎆</span>
-    </div>
-    <div class="number" id="winnerNumber"></div>
-  </section>
-</main>
+  <main class="wrap">
+    <img id="logo" alt="Logo del boliche" hidden>
+    <div class="eyebrow">Cuba Eventos presenta</div>
+    <h1>¡Sorteo en vivo!</h1>
+    <section id="waiting" class="waiting">Esperando el próximo sorteo...</section>
+    <section id="countdownView" hidden>
+      <div class="countdown" id="countdown">10:00.000</div>
+      <div class="countdown-label">El sorteo comienza en</div>
+    </section>
+    <section id="game" hidden>
+      <div id="meta"></div>
+      <div class="wheel">
+        <div id="name"></div>
+      </div>
+    </section>
+    <section id="winner">
+      <div class="winner-label">✨ ¡PERSONA GANADORA! ✨</div>
+      <div class="winner-row">
+        <span class="firework-side firework-left">🎆</span>
+        <div class="winner-name" id="winnerName"></div>
+        <span class="firework-side firework-right">🎆</span>
+      </div>
+      <div class="number" id="winnerNumber"></div>
+    </section>
+  </main>
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getFirestore, doc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getFirestore, doc, onSnapshot, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const config = {
-  apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
-  authDomain: 'cuba-eventos.firebaseapp.com',
-  projectId: 'cuba-eventos',
-  storageBucket: 'cuba-eventos.firebasestorage.app',
-  messagingSenderId: '504683487458',
-  appId: '1:504683487458:web:724f3fb58f18c25b847ebb'
-};
-
-const db = getFirestore(initializeApp(config));
-const waiting = document.getElementById('waiting');
-const countdownView = document.getElementById('countdownView');
-const game = document.getElementById('game');
-const name = document.getElementById('name');
-const winner = document.getElementById('winner');
-const countdown = document.getElementById('countdown');
-const logo = document.getElementById('logo');
-const soundToggle = document.getElementById('soundToggle');
-const soundIcon = document.getElementById('soundIcon');
-const soundLabel = document.getElementById('soundLabel');
-const audioBanner = document.getElementById('audioBanner');
-const testAudioBtn = document.getElementById('testAudioBtn');
-
-let timer, runId = 0, activeStartAt = null;
-let soundEnabled = true;
-let isUnlocked = false;
-
-// Archivos de audio reales MP3
-const drumAudio = new Audio('audio/drumroll.mp3');
-const fanfareAudio = new Audio('audio/fanfare.mp3');
-
-drumAudio.preload = 'auto';
-fanfareAudio.preload = 'auto';
-drumAudio.volume = 1.0;
-fanfareAudio.volume = 1.0;
-drumAudio.loop = false;
-
-function unlockAudio() {
-  if (isUnlocked) return;
-  isUnlocked = true;
-  if (audioBanner) audioBanner.hidden = true;
-  drumAudio.load();
-  fanfareAudio.load();
-}
-
-window.addEventListener('click', unlockAudio);
-window.addEventListener('touchstart', unlockAudio);
-window.addEventListener('keydown', unlockAudio);
-
-soundToggle.addEventListener('click', (e) => {
-  e.stopPropagation();
-  unlockAudio();
-  soundEnabled = !soundEnabled;
-  if (soundEnabled) {
-    soundIcon.textContent = '🔊';
-    soundLabel.textContent = 'Sonido Activado';
-  } else {
-    soundIcon.textContent = '🔇';
-    soundLabel.textContent = 'Sonido Silenciado';
-    stopAllAudio();
-  }
-});
-
-testAudioBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  unlockAudio();
-  stopAllAudio();
-  drumAudio.currentTime = 0;
-  drumAudio.play().catch(e => console.warn(e));
-
-  setTimeout(() => {
-    drumAudio.pause();
-    drumAudio.currentTime = 0;
-    fanfareAudio.currentTime = 0;
-    fanfareAudio.play().catch(e => console.warn(e));
-  }, 9000);
-});
-
-function playDrumRoll() {
-  if (!soundEnabled) return;
-  if (audioBanner) audioBanner.hidden = true;
-  drumAudio.loop = false;
-  drumAudio.currentTime = 0;
-  const p = drumAudio.play();
-  if (p !== undefined) {
-    p.catch(err => console.warn("Error reproduciendo drumroll:", err));
-  }
-}
-
-function stopAllAudio() {
-  drumAudio.pause();
-  drumAudio.currentTime = 0;
-  fanfareAudio.pause();
-  fanfareAudio.currentTime = 0;
-}
-
-function playFanfare() {
-  if (!soundEnabled) return;
-  if (audioBanner) audioBanner.hidden = true;
-  fanfareAudio.currentTime = 0;
-  const p = fanfareAudio.play();
-  if (p !== undefined) {
-    p.catch(err => console.warn("Error reproduciendo fanfare:", err));
-  }
-}
-
-function resetScreen(){
-  activeStartAt = null;
-  runId++;
-  clearInterval(timer);
-  stopAllAudio();
-  winner.style.display = 'none';
-  game.hidden = true;
-  countdownView.hidden = true;
-  waiting.hidden = false;
-  name.textContent = '';
-}
-
-function launchConfetti(){
-  if(typeof confetti !== 'function') return;
-  const count = 240;
-  const defaults = { origin: { y: 0.7 } };
-
-  function fire(particleRatio, opts) {
-    confetti({ ...defaults, ...opts, particleCount: Math.floor(count * particleRatio) });
-  }
-
-  fire(0.25, { spread: 26, startVelocity: 55, colors: ['#ff3d9a', '#33e1e8', '#ffffff'] });
-  fire(0.2, { spread: 60, colors: ['#ff3d9a', '#8b5cf6', '#33e1e8'] });
-  fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-  fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, colors: ['#ffe600', '#ff3d9a'] });
-  fire(0.1, { spread: 120, startVelocity: 45 });
-}
-
-function launchFireworks(){
-  if(typeof confetti !== 'function') return;
-
-  const duration = 6000;
-  const animationEnd = Date.now() + duration;
-  const defaults = { startVelocity: 45, spread: 360, ticks: 60, zIndex: 999 };
-
-  function randomInRange(min, max) {
-    return Math.random() * (max - min) + min;
-  }
-
-  // 1. Ráfagas iniciales de fuegos artificiales desde ambos costados
-  confetti({
-    particleCount: 65,
-    angle: 60,
-    spread: 70,
-    origin: { x: 0.08, y: 0.7 },
-    colors: ['#ff3d9a', '#ffe600', '#33e1e8', '#ffffff'],
-    shapes: ['star', 'circle']
-  });
-  confetti({
-    particleCount: 65,
-    angle: 120,
-    spread: 70,
-    origin: { x: 0.92, y: 0.7 },
-    colors: ['#33e1e8', '#ffe600', '#ff3d9a', '#ffffff'],
-    shapes: ['star', 'circle']
-  });
-
-  // 2. Explosiones continuas de fuegos artificiales a los lados del nombre ganador
-  const interval = setInterval(function() {
-    const timeLeft = animationEnd - Date.now();
-    if (timeLeft <= 0) {
-      return clearInterval(interval);
-    }
-
-    const particleCount = 35 * (timeLeft / duration);
-
-    // Fuego artificial en el costado izquierdo
-    confetti({
-      ...defaults,
-      particleCount: Math.floor(particleCount),
-      origin: { x: randomInRange(0.06, 0.26), y: randomInRange(0.25, 0.65) },
-      colors: ['#ff3d9a', '#ffe600', '#33e1e8', '#a855f7'],
-      shapes: ['star', 'circle']
-    });
-
-    // Fuego artificial en el costado derecho
-    confetti({
-      ...defaults,
-      particleCount: Math.floor(particleCount),
-      origin: { x: randomInRange(0.74, 0.94), y: randomInRange(0.25, 0.65) },
-      colors: ['#33e1e8', '#ffe600', '#ff3d9a', '#22c55e'],
-      shapes: ['star', 'circle']
-    });
-  }, 300);
-}
-
-function reveal(entries, index){
-  drumAudio.pause();
-  drumAudio.currentTime = 0;
-
-  const selected = entries[index];
-  if(!selected) return;
-
-  game.hidden = true;
-  countdownView.hidden = true;
-  waiting.hidden = true;
-  winner.style.display = 'block';
-
-  document.getElementById('winnerName').textContent = selected.nombre;
-  document.getElementById('winnerNumber').textContent = `Participante #${selected.numero}`;
-
-  // 1. Confeti central
-  launchConfetti();
-
-  // 2. Fuegos artificiales a los costados
-  launchFireworks();
-
-  // 3. Fanfarria real de trompetas
-  playFanfare();
-}
-
-function startRoll(data, playDrum = true, durationMs = 9000){
-  const id = ++runId;
-  const entries = data.entries || [];
-  const rollDuration = durationMs;
-
-  waiting.hidden = true;
-  countdownView.hidden = true;
-  game.hidden = false;
-  winner.style.display = 'none';
-
-  document.getElementById('meta').textContent = `${entries.length} participantes en juego`;
-  name.classList.add('spinning');
-
-  // Sonido de redoblante solo si está indicado para este modo
-  if (playDrum) {
-    playDrumRoll();
-  } else {
-    drumAudio.pause();
-    drumAudio.currentTime = 0;
-  }
-
-  let position = 0;
-  clearInterval(timer);
-  timer = setInterval(() => {
-    name.textContent = entries[position++ % entries.length].nombre;
-  }, 80);
-
-  setTimeout(() => {
-    if(id !== runId) return;
-    clearInterval(timer);
-    name.classList.remove('spinning');
-    name.textContent = entries[data.winnerIndex].nombre;
-    setTimeout(() => reveal(entries, data.winnerIndex), 400);
-  }, rollDuration);
-}
-
-async function loadSavedLogo() {
-  try {
-    const snapConfig = await getDoc(doc(db, 'sorteo', 'configuracion'));
-    if (snapConfig.exists() && snapConfig.data().logoUrl) {
-      logo.src = snapConfig.data().logoUrl;
-      logo.hidden = false;
-      logo.style.display = 'block';
-      return;
-    }
-    const snapForm = await getDoc(doc(db, 'configuracion', 'formulario'));
-    if (snapForm.exists() && snapForm.data().logoUrl) {
-      logo.src = snapForm.data().logoUrl;
-      logo.hidden = false;
-      logo.style.display = 'block';
-    }
-  } catch(e) {}
-}
-loadSavedLogo();
-
-onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
-  if(!snapshot.exists()) return;
-  const data = snapshot.data();
-
-  // Asegurar que el logo se muestre primero si viene en el documento
-  if(data.logoUrl){
-    logo.src = data.logoUrl;
-    logo.hidden = false;
-    logo.style.display = 'block';
-  }
-
-  if(data.status === 'idle') { resetScreen(); return; }
-
-  // 1. Modo Giro de Ruleta (spinning o express)
-  if(data.status === 'spinning' || data.status === 'express') {
-    const entries = data.entries || [];
-    if(!entries.length) return;
-
-    const serverStart = data.serverStartAt?.toMillis ? data.serverStartAt.toMillis() : (data.spinStartAt?.toMillis ? data.spinStartAt.toMillis() : Date.now());
-    const drawId = data.status + '_' + (data.winnerIndex ?? '') + '_' + serverStart;
-    if(drawId === activeStartAt) return;
-    activeStartAt = drawId;
-
-    const spinDuration = data.spinDuration || data.duration || 15000;
-    startRoll(data, true, spinDuration);
-    return;
-  }
-
-  // 2. Modo Cuenta Regresiva (la lista de participantes sigue abierta en vivo)
-  if(data.status === 'countdown') {
-    const serverStart = data.serverStartAt?.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
-    const durationMs = (data.durationMinutes || 10) * 60000;
-
-    waiting.hidden = true;
-    game.hidden = true;
-    winner.style.display = 'none';
-    countdownView.hidden = false;
-
-    clearInterval(timer);
-
-    const tick = () => {
-      const elapsed = Math.max(0, Date.now() - serverStart);
-      const remaining = Math.max(0, durationMs - elapsed);
-
-      const m = Math.floor(remaining / 60000);
-      const s = Math.floor((remaining % 60000) / 1000);
-      const ms = Math.floor(remaining % 1000);
-
-      countdown.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(ms).padStart(3,'0')}`;
-
-      if (remaining <= 0) {
-        clearInterval(timer);
-        countdown.textContent = "00:00.000";
-        document.querySelector('.countdown-label').textContent = "¡Tiempo cumplido! Preparando ruleta...";
-      } else {
-        document.querySelector('.countdown-label').textContent = "El sorteo comienza en (¡escaneá el QR para sumarte!)";
-      }
+    const config = {
+      apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
+      authDomain: 'cuba-eventos.firebaseapp.com',
+      projectId: 'cuba-eventos',
+      storageBucket: 'cuba-eventos.firebasestorage.app',
+      messagingSenderId: '504683487458',
+      appId: '1:504683487458:web:724f3fb58f18c25b847ebb'
     };
 
-    tick();
-    timer = setInterval(tick, 37);
-  }
-});
-</script>
+    const db = getFirestore(initializeApp(config));
+    const waiting = document.getElementById('waiting');
+    const countdownView = document.getElementById('countdownView');
+    const game = document.getElementById('game');
+    const name = document.getElementById('name');
+    const winner = document.getElementById('winner');
+    const countdown = document.getElementById('countdown');
+    const logo = document.getElementById('logo');
+    const soundToggle = document.getElementById('soundToggle');
+    const soundIcon = document.getElementById('soundIcon');
+    const soundLabel = document.getElementById('soundLabel');
+    const audioBanner = document.getElementById('audioBanner');
+    const testAudioBtn = document.getElementById('testAudioBtn');
+
+    let timer, runId = 0, activeStartAt = null, currentCountdownId = null;
+    let soundEnabled = true;
+    let isUnlocked = false;
+
+    // Archivos de audio reales MP3
+    const drumAudio = new Audio('audio/drumroll.mp3');
+    const fanfareAudio = new Audio('audio/fanfare.mp3');
+
+    drumAudio.preload = 'auto';
+    fanfareAudio.preload = 'auto';
+    drumAudio.volume = 1.0;
+    fanfareAudio.volume = 1.0;
+    drumAudio.loop = false;
+
+    function unlockAudio() {
+      if (isUnlocked) return;
+      isUnlocked = true;
+      if (audioBanner) audioBanner.hidden = true;
+      drumAudio.load();
+      fanfareAudio.load();
+    }
+
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('touchstart', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
+
+    soundToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      unlockAudio();
+      soundEnabled = !soundEnabled;
+      if (soundEnabled) {
+        soundIcon.textContent = '🔊';
+        soundLabel.textContent = 'Sonido Activado';
+      } else {
+        soundIcon.textContent = '🔇';
+        soundLabel.textContent = 'Sonido Silenciado';
+        stopAllAudio();
+      }
+    });
+
+    testAudioBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      unlockAudio();
+      stopAllAudio();
+      drumAudio.currentTime = 0;
+      drumAudio.play().catch(e => console.warn(e));
+
+      setTimeout(() => {
+        drumAudio.pause();
+        drumAudio.currentTime = 0;
+        fanfareAudio.currentTime = 0;
+        fanfareAudio.play().catch(e => console.warn(e));
+      }, 9000);
+    });
+
+    function playDrumRoll() {
+      if (!soundEnabled) return;
+      if (audioBanner) audioBanner.hidden = true;
+      drumAudio.loop = false;
+      drumAudio.currentTime = 0;
+      const p = drumAudio.play();
+      if (p !== undefined) {
+        p.catch(err => console.warn("Error reproduciendo drumroll:", err));
+      }
+    }
+
+    function stopAllAudio() {
+      drumAudio.pause();
+      drumAudio.currentTime = 0;
+      fanfareAudio.pause();
+      fanfareAudio.currentTime = 0;
+    }
+
+    function playFanfare() {
+      if (!soundEnabled) return;
+      if (audioBanner) audioBanner.hidden = true;
+      fanfareAudio.currentTime = 0;
+      const p = fanfareAudio.play();
+      if (p !== undefined) {
+        p.catch(err => console.warn("Error reproduciendo fanfare:", err));
+      }
+    }
+
+    function resetScreen() {
+      activeStartAt = null;
+      currentCountdownId = null;
+      runId++;
+      clearInterval(timer);
+      stopAllAudio();
+      winner.style.display = 'none';
+      game.hidden = true;
+      countdownView.hidden = true;
+      waiting.hidden = false;
+      name.textContent = '';
+    }
+
+    function launchConfetti() {
+      if (typeof confetti !== 'function') return;
+      const count = 240;
+      const defaults = { origin: { y: 0.7 } };
+
+      function fire(particleRatio, opts) {
+        confetti({ ...defaults, ...opts, particleCount: Math.floor(count * particleRatio) });
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55, colors: ['#ff3d9a', '#33e1e8', '#ffffff'] });
+      fire(0.2, { spread: 60, colors: ['#ff3d9a', '#8b5cf6', '#33e1e8'] });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, colors: ['#ffe600', '#ff3d9a'] });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+    }
+
+    function launchFireworks() {
+      if (typeof confetti !== 'function') return;
+
+      const duration = 6000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 45, spread: 360, ticks: 60, zIndex: 999 };
+
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      // 1. Ráfagas iniciales de fuegos artificiales desde ambos costados
+      confetti({
+        particleCount: 65,
+        angle: 60,
+        spread: 70,
+        origin: { x: 0.08, y: 0.7 },
+        colors: ['#ff3d9a', '#ffe600', '#33e1e8', '#ffffff'],
+        shapes: ['star', 'circle']
+      });
+      confetti({
+        particleCount: 65,
+        angle: 120,
+        spread: 70,
+        origin: { x: 0.92, y: 0.7 },
+        colors: ['#33e1e8', '#ffe600', '#ff3d9a', '#ffffff'],
+        shapes: ['star', 'circle']
+      });
+
+      // 2. Explosiones continuas de fuegos artificiales a los lados del nombre ganador
+      const interval = setInterval(function () {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 35 * (timeLeft / duration);
+
+        // Fuego artificial en el costado izquierdo
+        confetti({
+          ...defaults,
+          particleCount: Math.floor(particleCount),
+          origin: { x: randomInRange(0.06, 0.26), y: randomInRange(0.25, 0.65) },
+          colors: ['#ff3d9a', '#ffe600', '#33e1e8', '#a855f7'],
+          shapes: ['star', 'circle']
+        });
+
+        // Fuego artificial en el costado derecho
+        confetti({
+          ...defaults,
+          particleCount: Math.floor(particleCount),
+          origin: { x: randomInRange(0.74, 0.94), y: randomInRange(0.25, 0.65) },
+          colors: ['#33e1e8', '#ffe600', '#ff3d9a', '#22c55e'],
+          shapes: ['star', 'circle']
+        });
+      }, 300);
+    }
+
+    function reveal(entries, index) {
+      drumAudio.pause();
+      drumAudio.currentTime = 0;
+
+      const selected = entries[index];
+      if (!selected) return;
+
+      game.hidden = true;
+      countdownView.hidden = true;
+      waiting.hidden = true;
+      winner.style.display = 'block';
+
+      document.getElementById('winnerName').textContent = selected.nombre;
+      document.getElementById('winnerNumber').textContent = `Participante #${selected.numero}`;
+
+      // 1. Confeti central
+      launchConfetti();
+
+      // 2. Fuegos artificiales a los costados
+      launchFireworks();
+
+      // 3. Fanfarria real de trompetas
+      playFanfare();
+    }
+
+    function startRoll(data, playDrum = true, durationMs = 9000) {
+      const id = ++runId;
+      const entries = data.entries || [];
+      const rollDuration = durationMs;
+
+      waiting.hidden = true;
+      countdownView.hidden = true;
+      game.hidden = false;
+      winner.style.display = 'none';
+
+      document.getElementById('meta').textContent = `${entries.length} participantes en juego`;
+      name.classList.add('spinning');
+
+      // Sonido de redoblante solo si está indicado para este modo
+      if (playDrum) {
+        playDrumRoll();
+      } else {
+        drumAudio.pause();
+        drumAudio.currentTime = 0;
+      }
+
+      let position = 0;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        name.textContent = entries[position++ % entries.length].nombre;
+      }, 80);
+
+      setTimeout(() => {
+        if (id !== runId) return;
+        clearInterval(timer);
+        name.classList.remove('spinning');
+        name.textContent = entries[data.winnerIndex].nombre;
+        setTimeout(() => reveal(entries, data.winnerIndex), 400);
+      }, rollDuration);
+    }
+
+    async function loadSavedLogo() {
+      try {
+        const snapConfig = await getDoc(doc(db, 'sorteo', 'configuracion'));
+        if (snapConfig.exists() && snapConfig.data().logoUrl) {
+          logo.src = snapConfig.data().logoUrl;
+          logo.hidden = false;
+          logo.style.display = 'block';
+          return;
+        }
+        const snapForm = await getDoc(doc(db, 'configuracion', 'formulario'));
+        if (snapForm.exists() && snapForm.data().logoUrl) {
+          logo.src = snapForm.data().logoUrl;
+          logo.hidden = false;
+          logo.style.display = 'block';
+        }
+      } catch (e) { }
+    }
+    loadSavedLogo();
+
+    onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.data();
+
+      // Asegurar que el logo se muestre primero si viene en el documento
+      if (data.logoUrl) {
+        logo.src = data.logoUrl;
+        logo.hidden = false;
+        logo.style.display = 'block';
+      }
+
+      if (data.status === 'idle') { resetScreen(); return; }
+
+      // 1. Modo Giro de Ruleta (spinning o express)
+      if (data.status === 'spinning' || data.status === 'express') {
+        const entries = data.entries || [];
+        if (!entries.length) return;
+
+        const serverStart = data.serverStartAt?.toMillis ? data.serverStartAt.toMillis() : (data.spinStartAt?.toMillis ? data.spinStartAt.toMillis() : Date.now());
+        const drawId = data.status + '_' + (data.winnerIndex ?? '') + '_' + serverStart;
+        if (drawId === activeStartAt) return;
+        activeStartAt = drawId;
+
+        const spinDuration = data.spinDuration || data.duration || 15000;
+        startRoll(data, true, spinDuration);
+        return;
+      }
+
+      // 2. Modo Cuenta Regresiva (la lista de participantes sigue abierta en vivo)
+      if (data.status === 'countdown') {
+        const countdownKey = (data.durationMinutes || 10) + '_' + (data.serverStartAt?.seconds || data.serverStartAt || '');
+        if (currentCountdownId !== countdownKey) {
+          currentCountdownId = countdownKey;
+
+          const durationMs = (data.durationMinutes || 10) * 60000;
+          let elapsedAlready = 0;
+          if (data.serverStartAt) {
+            const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : data.serverStartAt;
+            const diff = Date.now() - serverStart;
+            if (diff > 0 && diff < durationMs) {
+              elapsedAlready = diff;
+            }
+          }
+          const localStartTime = Date.now() - elapsedAlready;
+
+          waiting.hidden = true;
+          game.hidden = true;
+          winner.style.display = 'none';
+          countdownView.hidden = false;
+
+          clearInterval(timer);
+
+          const tick = () => {
+            const elapsed = Date.now() - localStartTime;
+            const remaining = Math.max(0, durationMs - elapsed);
+
+            const m = Math.floor(remaining / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            const ms = Math.floor(remaining % 1000);
+
+            countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+
+            if (remaining <= 0) {
+              clearInterval(timer);
+              countdown.textContent = "00:00.000";
+              document.querySelector('.countdown-label').textContent = "¡Tiempo cumplido! Preparando ruleta...";
+            } else {
+              document.querySelector('.countdown-label').textContent = "El sorteo comienza en (¡escaneá el QR para sumarte!)";
+            }
+          };
+
+          tick();
+          timer = setInterval(tick, 37);
+        }
+      }
+    });
+  </script>
 </body>
+
 </html>

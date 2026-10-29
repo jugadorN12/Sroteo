@@ -357,7 +357,7 @@
     const audioBanner = document.getElementById('audioBanner');
     const testAudioBtn = document.getElementById('testAudioBtn');
 
-    let timer, runId = 0, activeStartAt = null;
+    let timer, runId = 0, activeStartAt = null, currentCountdownId = null;
     let soundEnabled = true;
     let isUnlocked = false;
 
@@ -442,6 +442,7 @@
 
     function resetScreen() {
       activeStartAt = null;
+      currentCountdownId = null;
       runId++;
       clearInterval(timer);
       stopAllAudio();
@@ -636,37 +637,50 @@
 
       // 2. Modo Cuenta Regresiva (la lista de participantes sigue abierta en vivo)
       if (data.status === 'countdown') {
-        const serverStart = data.serverStartAt?.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
-        const durationMs = (data.durationMinutes || 10) * 60000;
+        const countdownKey = (data.durationMinutes || 10) + '_' + (data.serverStartAt?.seconds || data.serverStartAt || '');
+        if (currentCountdownId !== countdownKey) {
+          currentCountdownId = countdownKey;
 
-        waiting.hidden = true;
-        game.hidden = true;
-        winner.style.display = 'none';
-        countdownView.hidden = false;
-
-        clearInterval(timer);
-
-        const tick = () => {
-          const elapsed = Math.max(0, Date.now() - serverStart);
-          const remaining = Math.max(0, durationMs - elapsed);
-
-          const m = Math.floor(remaining / 60000);
-          const s = Math.floor((remaining % 60000) / 1000);
-          const ms = Math.floor(remaining % 1000);
-
-          countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
-
-          if (remaining <= 0) {
-            clearInterval(timer);
-            countdown.textContent = "00:00.000";
-            document.querySelector('.countdown-label').textContent = "¡Tiempo cumplido! Preparando ruleta...";
-          } else {
-            document.querySelector('.countdown-label').textContent = "El sorteo comienza en (¡escaneá el QR para sumarte!)";
+          const durationMs = (data.durationMinutes || 10) * 60000;
+          let elapsedAlready = 0;
+          if (data.serverStartAt) {
+            const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : data.serverStartAt;
+            const diff = Date.now() - serverStart;
+            if (diff > 0 && diff < durationMs) {
+              elapsedAlready = diff;
+            }
           }
-        };
+          const localStartTime = Date.now() - elapsedAlready;
 
-        tick();
-        timer = setInterval(tick, 37);
+          waiting.hidden = true;
+          game.hidden = true;
+          winner.style.display = 'none';
+          countdownView.hidden = false;
+
+          clearInterval(timer);
+
+          const tick = () => {
+            const elapsed = Date.now() - localStartTime;
+            const remaining = Math.max(0, durationMs - elapsed);
+
+            const m = Math.floor(remaining / 60000);
+            const s = Math.floor((remaining % 60000) / 1000);
+            const ms = Math.floor(remaining % 1000);
+
+            countdown.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(3, '0')}`;
+
+            if (remaining <= 0) {
+              clearInterval(timer);
+              countdown.textContent = "00:00.000";
+              document.querySelector('.countdown-label').textContent = "¡Tiempo cumplido! Preparando ruleta...";
+            } else {
+              document.querySelector('.countdown-label').textContent = "El sorteo comienza en (¡escaneá el QR para sumarte!)";
+            }
+          };
+
+          tick();
+          timer = setInterval(tick, 37);
+        }
       }
     });
   </script>

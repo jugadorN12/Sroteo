@@ -1254,13 +1254,19 @@
 
     function handleCountdownTicker(data) {
       clearInterval(countdownInterval);
-      if (!data.serverStartAt) return;
-      const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
       const durationMs = (data.durationMinutes || 10) * 60000;
-      const offset = Date.now() - serverStart;
+      let elapsedAlready = 0;
+      if (data.serverStartAt) {
+        const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : data.serverStartAt;
+        const diff = Date.now() - serverStart;
+        if (diff > 0 && diff < durationMs) {
+          elapsedAlready = diff;
+        }
+      }
+      const localStartTime = Date.now() - elapsedAlready;
 
       const updateMobileClock = () => {
-        const elapsed = Date.now() - offset - serverStart;
+        const elapsed = Date.now() - localStartTime;
         const remaining = Math.max(0, durationMs - elapsed);
         const m = Math.floor(remaining / 60000);
         const s = Math.floor((remaining % 60000) / 1000);
