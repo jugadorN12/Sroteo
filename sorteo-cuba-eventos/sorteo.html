@@ -283,6 +283,57 @@
       }
     }
 
+    /* Cartel de Premio en Pantalla */
+    .prize-banner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(255, 61, 154, 0.25), rgba(51, 225, 232, 0.25));
+      border: 2px solid var(--pink);
+      box-shadow: 0 0 30px rgba(255, 61, 154, 0.6), inset 0 0 20px rgba(51, 225, 232, 0.3);
+      padding: 10px 28px;
+      border-radius: 999px;
+      margin: 0 auto 18px;
+      max-width: 92%;
+      animation: prizePulse 2s infinite alternate ease-in-out;
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes prizePulse {
+      0% { transform: scale(0.98); box-shadow: 0 0 20px rgba(255, 61, 154, 0.5); }
+      100% { transform: scale(1.02); box-shadow: 0 0 40px rgba(51, 225, 232, 0.7); }
+    }
+
+    .prize-label {
+      font-size: clamp(13px, 1.8vw, 22px);
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(51, 225, 232, 0.8);
+    }
+
+    .prize-title {
+      font-size: clamp(18px, 2.8vw, 36px);
+      font-weight: 900;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 15px #ff3d9a, 0 0 30px rgba(255, 61, 154, 0.9);
+    }
+
+    .winner-prize {
+      margin-top: 14px;
+      font-size: clamp(20px, 3.2vw, 42px);
+      font-weight: 900;
+      color: #ffe600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 25px rgba(255, 230, 0, 0.9);
+      animation: pulse 1s infinite alternate;
+    }
+
     [hidden] {
       display: none !important;
     }
@@ -305,6 +356,10 @@
   </div>
 
   <main class="wrap">
+    <div id="prizeBanner" class="prize-banner" hidden>
+      <span class="prize-label">🎁 SE SORTEA:</span>
+      <span id="prizeText" class="prize-title">RONDA DE CHUPITOS</span>
+    </div>
     <img id="logo" alt="Logo del boliche" hidden>
     <div class="eyebrow">Cuba Eventos presenta</div>
     <h1>¡Sorteo en vivo!</h1>
@@ -327,6 +382,7 @@
         <span class="firework-side firework-right">🎆</span>
       </div>
       <div class="number" id="winnerNumber"></div>
+      <div id="winnerPrizeBadge" class="winner-prize" hidden></div>
     </section>
   </main>
 
@@ -610,6 +666,22 @@
     onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
       if (!snapshot.exists()) return;
       const data = snapshot.data();
+
+      // Cartel de Premio en vivo sobre el logo
+      const prizeBanner = document.getElementById('prizeBanner');
+      const prizeText = document.getElementById('prizeText');
+      const winnerPrizeBadge = document.getElementById('winnerPrizeBadge');
+
+      if (data.prize && data.prize.trim()) {
+        prizeBanner.hidden = false;
+        prizeBanner.style.display = 'inline-flex';
+        prizeText.textContent = data.prize.trim();
+        winnerPrizeBadge.textContent = 'Premio: ' + data.prize.trim();
+        winnerPrizeBadge.hidden = false;
+      } else {
+        prizeBanner.hidden = true;
+        winnerPrizeBadge.hidden = true;
+      }
 
       // Asegurar que el logo se muestre primero si viene en el documento
       if (data.logoUrl) {

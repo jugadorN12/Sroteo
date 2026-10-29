@@ -565,6 +565,121 @@
       background: rgba(255, 255, 255, 0.05);
     }
 
+    /* Cartel / Chips de Premio en Control Remoto */
+    .prize-card {
+      background: linear-gradient(135deg, rgba(255, 61, 154, 0.08), rgba(51, 225, 232, 0.06));
+      border: 1.5px solid rgba(255, 61, 154, 0.35);
+      margin-bottom: 14px;
+    }
+
+    .prize-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .prize-icon {
+      font-size: 26px;
+    }
+
+    .prize-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--pink);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .prize-card-subtitle {
+      font-size: 11px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+
+    .prize-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+
+    .prize-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .prize-chip:active {
+      transform: scale(0.95);
+    }
+
+    .prize-chip.active {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(255, 61, 154, 0.5);
+    }
+
+    .prize-chip.chip-clear {
+      border-color: rgba(255, 77, 77, 0.4);
+      color: #ff8585;
+      background: rgba(255, 77, 77, 0.08);
+    }
+
+    .prize-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .prize-input-row input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .prize-input-row input:focus {
+      border-color: var(--cyan);
+      outline: none;
+    }
+
+    .btn-set-prize {
+      background: var(--cyan);
+      color: #0B0713;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.1s;
+    }
+
+    .btn-set-prize:active {
+      transform: scale(0.95);
+    }
+
+    .prize-status-note {
+      font-size: 11px;
+      color: var(--cyan);
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
     /* Winners registered list */
     .section-header {
       display: flex;
@@ -833,6 +948,7 @@
           </div>
           <div id="winnerName" class="winner-name">—</div>
           <div id="winnerMeta" class="winner-meta">—</div>
+          <div id="winnerPrizeText" style="font-size:13px; font-weight:800; color:#FFE600; text-transform:uppercase; margin-bottom:10px;" hidden></div>
 
           <div class="winner-actions">
             <a id="btnWhatsApp" class="btn-whatsapp" href="#" target="_blank" rel="noopener">
@@ -847,6 +963,34 @@
             <button id="btnRespin" class="btn-respin">🔄 No está presente (Re-sortear)</button>
             <button id="btnFinish" class="btn-finish-winner">✅ Validar y Terminar</button>
           </div>
+        </div>
+
+        <!-- 🎁 ¿Qué se sortea en esta tanda? -->
+        <div class="card prize-card">
+          <div class="prize-card-header">
+            <span class="prize-icon">🎁</span>
+            <div>
+              <div class="prize-card-title">Premio en Pantalla</div>
+              <div class="prize-card-subtitle">Se muestra arriba del logo en la pantalla gigante</div>
+            </div>
+          </div>
+
+          <!-- Botones rápidos de premios -->
+          <div class="prize-chips">
+            <button type="button" class="prize-chip" data-prize="RONDA DE CHUPITOS">🍸 Chupitos</button>
+            <button type="button" class="prize-chip" data-prize="CHAMPAGNE">🍾 Champagne</button>
+            <button type="button" class="prize-chip" data-prize="MERCHANDISING">👕 Merch</button>
+            <button type="button" class="prize-chip" data-prize="PREMIO SORPRESA">🎁 Sorpresa</button>
+            <button type="button" class="prize-chip" data-prize="CONSUMICIÓN $40.000">🍹 Consumición</button>
+            <button type="button" class="prize-chip" data-prize="FERNET CON COCA">🥃 Fernet</button>
+            <button type="button" class="prize-chip chip-clear" data-prize="">❌ Sin texto</button>
+          </div>
+
+          <div class="prize-input-row">
+            <input type="text" id="livePrizeInput" placeholder="Escribí qué se sortea (ej: RONDA DE CHUPITOS)" maxlength="50">
+            <button type="button" id="btnSetPrize" class="btn-set-prize">Actualizar</button>
+          </div>
+          <div id="prizeStatusNote" class="prize-status-note">Listo para mostrar en pantalla</div>
         </div>
 
         <!-- Controles del Sorteo -->
@@ -1066,6 +1210,13 @@
     const prizeInput = document.getElementById('prizeInput');
     const savePrizeBtn = document.getElementById('savePrizeBtn');
 
+    // Cartel de Premio en Vivo
+    const livePrizeInput = document.getElementById('livePrizeInput');
+    const btnSetPrize = document.getElementById('btnSetPrize');
+    const prizeStatusNote = document.getElementById('prizeStatusNote');
+    const prizeChips = document.querySelectorAll('.prize-chip');
+    const winnerPrizeText = document.getElementById('winnerPrizeText');
+
     // PWA Prompt
     let deferredPrompt = null;
     const installBanner = document.getElementById('installBanner');
@@ -1187,6 +1338,27 @@
         }
         const data = snap.data();
         updateStatusDisplay(data.status);
+
+        // Sincronizar premio en vivo
+        const currentPrize = data.prize ? data.prize.trim().toUpperCase() : '';
+        if (document.activeElement !== livePrizeInput) {
+          livePrizeInput.value = currentPrize;
+        }
+        prizeChips.forEach(chip => {
+          const chipVal = (chip.getAttribute('data-prize') || '').trim().toUpperCase();
+          if (currentPrize && chipVal === currentPrize) {
+            chip.classList.add('active');
+          } else {
+            chip.classList.remove('active');
+          }
+        });
+        if (currentPrize) {
+          prizeStatusNote.textContent = `Mostrando en pantalla: ${currentPrize}`;
+          prizeStatusNote.style.color = 'var(--cyan)';
+        } else {
+          prizeStatusNote.textContent = 'Sin cartel en pantalla (tocá un premio o escribí uno)';
+          prizeStatusNote.style.color = 'var(--ink-soft)';
+        }
 
         if (data.status === 'countdown') {
           countdownBox.hidden = false;
@@ -1337,8 +1509,17 @@
       const birth = winner.fecha_nacimiento ? ` | Cumple: ${winner.fecha_nacimiento}` : '';
       winnerMeta.textContent = `📱 ${phone}${birth}`;
 
+      const currentPrize = (livePrizeInput.value || '').trim().toUpperCase();
+      if (currentPrize) {
+        winnerPrizeText.textContent = `🎁 Premio: ${currentPrize}`;
+        winnerPrizeText.hidden = false;
+      } else {
+        winnerPrizeText.hidden = true;
+      }
+
       const waPhone = formatPhoneForWhatsApp(winner.celular);
-      const waMsg = encodeURIComponent(`¡Hola ${winner.nombre}! 🥳 Te escribimos de Cuba Eventos porque saliste ganador/a de nuestro sorteo de esta noche. ¿Estás en el boliche para retirar tu premio?`);
+      const prizeMsg = currentPrize ? ` de: *${currentPrize}*` : '';
+      const waMsg = encodeURIComponent(`¡Hola ${winner.nombre}! 🥳 Te escribimos de Cuba Eventos porque saliste ganador/a de nuestro sorteo de esta noche${prizeMsg}. ¿Estás en el boliche para retirar tu premio?`);
       btnWhatsApp.href = `https://wa.me/${waPhone}?text=${waMsg}`;
       btnCall.href = `tel:${phone.replace(/\s+/g, '')}`;
 
@@ -1471,6 +1652,7 @@
     // 1. Iniciar cuenta regresiva (la lista de participantes queda 100% abierta para que se sigan anotando)
     async function startCountdown() {
       const minutes = parseInt(customMinutes.value) || 10;
+      const currentPrize = (livePrizeInput.value || '').trim().toUpperCase();
       let logoUrl = '';
       try {
         const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
@@ -1484,7 +1666,8 @@
           durationMinutes: minutes,
           serverStartAt: serverTimestamp(),
           logoUrl,
-          entries: []
+          entries: [],
+          prize: currentPrize
         });
         batch.set(doc(db, 'sorteo', 'privado_ganador'), {
           winnerData: null
@@ -1542,6 +1725,8 @@
           revealAt: revealTimestamp
         };
 
+        const currentPrize = (livePrizeInput.value || '').trim().toUpperCase();
+
         const batch = writeBatch(db);
         batch.update(doc(db, 'participantes_sorteo', winner.id), {
           ya_gano: true,
@@ -1556,7 +1741,8 @@
           serverStartAt: serverTimestamp(),
           spinStartAt: serverTimestamp(),
           spinDuration: spinDuration,
-          duration: spinDuration
+          duration: spinDuration,
+          prize: currentPrize
         });
         batch.set(doc(db, 'sorteo', 'privado_ganador'), {
           winnerData: privateWinner,
@@ -1604,8 +1790,9 @@
             if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
           } catch (e) { }
 
+          const currentPrize = (livePrizeInput.value || '').trim().toUpperCase();
           const batch = writeBatch(db);
-          batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl });
+          batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl, prize: currentPrize });
           batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
           await batch.commit();
           showToast('Pantalla reseteada');
@@ -1632,8 +1819,9 @@
             if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
           } catch (e) { }
 
+          const currentPrize = (livePrizeInput.value || '').trim().toUpperCase();
           const batch = writeBatch(db);
-          batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl });
+          batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl, prize: currentPrize });
           batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
           await batch.commit();
           winnerCard.hidden = true;
@@ -1643,6 +1831,54 @@
         }
       }
     };
+
+    // Actualizar premio en vivo en la pantalla grande
+    async function updateLivePrize(newPrize) {
+      const cleanPrize = (newPrize || '').trim().toUpperCase();
+      try {
+        btnSetPrize.disabled = true;
+        btnSetPrize.textContent = "Actualizando...";
+
+        // 1. Actualizar sorteo actual para reflejar al instante en pantalla
+        await setDoc(doc(db, 'sorteo', 'actual'), { prize: cleanPrize }, { merge: true });
+
+        // 2. Si hay texto, persistir también en configuracion/formulario
+        if (cleanPrize) {
+          await updateDoc(doc(db, 'configuracion', 'formulario'), { prize: cleanPrize }).catch(() => {});
+          showToast(`🎁 En pantalla: ${cleanPrize}`);
+        } else {
+          showToast('Cartel de premio ocultado');
+        }
+      } catch (err) {
+        console.error("Error al actualizar premio:", err);
+        alert("Error al actualizar premio en pantalla: " + err.message);
+      } finally {
+        btnSetPrize.disabled = false;
+        btnSetPrize.textContent = "Actualizar";
+      }
+    }
+
+    // Botones rápidos (Chips)
+    prizeChips.forEach(chip => {
+      chip.onclick = () => {
+        const p = chip.getAttribute('data-prize');
+        livePrizeInput.value = p;
+        updateLivePrize(p);
+      };
+    });
+
+    // Botón Actualizar
+    btnSetPrize.onclick = () => {
+      updateLivePrize(livePrizeInput.value);
+    };
+
+    // Tecla Enter en el input
+    livePrizeInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        updateLivePrize(livePrizeInput.value);
+      }
+    });
 
     // Guardar premio en Firestore
     savePrizeBtn.onclick = async () => {
