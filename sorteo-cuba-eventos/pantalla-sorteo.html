@@ -238,6 +238,9 @@ function playFanfare() {
 }
 
 function resetScreen(){
+  activeStartAt = null;
+  runId++;
+  clearInterval(timer);
   stopAllAudio();
   winner.style.display = 'none';
   game.hidden = true;
@@ -418,7 +421,12 @@ onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
     const entries = data.entries || [];
     if(!entries.length) return;
 
-    const spinDuration = data.spinDuration || 15000;
+    const serverStart = data.serverStartAt?.toMillis ? data.serverStartAt.toMillis() : (data.spinStartAt?.toMillis ? data.spinStartAt.toMillis() : Date.now());
+    const drawId = data.status + '_' + (data.winnerIndex ?? '') + '_' + serverStart;
+    if(drawId === activeStartAt) return;
+    activeStartAt = drawId;
+
+    const spinDuration = data.spinDuration || data.duration || 15000;
     startRoll(data, true, spinDuration);
     return;
   }

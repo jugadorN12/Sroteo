@@ -1541,13 +1541,15 @@
           fecha_ganador: serverTimestamp()
         });
         batch.set(doc(db, 'sorteo', 'actual'), {
-          status: 'spinning',
+          status: 'express',
           entries: publicEntries,
           winnerIndex,
           winnerData: publicWinner,
           logoUrl,
+          serverStartAt: serverTimestamp(),
           spinStartAt: serverTimestamp(),
-          spinDuration: spinDuration
+          spinDuration: spinDuration,
+          duration: spinDuration
         });
         batch.set(doc(db, 'sorteo', 'privado_ganador'), {
           winnerData: privateWinner,
