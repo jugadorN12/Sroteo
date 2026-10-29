@@ -433,8 +433,7 @@ onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
 
   // 2. Modo Cuenta Regresiva (la lista de participantes sigue abierta en vivo)
   if(data.status === 'countdown') {
-    if(!data.serverStartAt) return;
-    const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
+    const serverStart = data.serverStartAt?.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
     const durationMs = (data.durationMinutes || 10) * 60000;
 
     waiting.hidden = true;
@@ -444,10 +443,8 @@ onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
 
     clearInterval(timer);
 
-    const offset = Date.now() - serverStart;
-
     const tick = () => {
-      const elapsed = Date.now() - offset - serverStart;
+      const elapsed = Math.max(0, Date.now() - serverStart);
       const remaining = Math.max(0, durationMs - elapsed);
 
       const m = Math.floor(remaining / 60000);

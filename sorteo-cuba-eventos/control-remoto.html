@@ -1236,8 +1236,8 @@
 
         headerCount.textContent = active.length;
         activeParticipantsCount.textContent = active.length;
-        startDrawBtn.disabled = active.length === 0;
-        expressDrawBtn.disabled = active.length === 0;
+        startDrawBtn.disabled = false; // La cuenta regresiva SIEMPRE se puede iniciar para que la gente se anote
+        expressDrawBtn.disabled = false;
 
         renderWinnersList(winners);
         renderParticipantsList(allParticipants);
@@ -1477,7 +1477,8 @@
           status: 'countdown',
           durationMinutes: minutes,
           serverStartAt: serverTimestamp(),
-          logoUrl
+          logoUrl,
+          entries: []
         });
         batch.set(doc(db, 'sorteo', 'privado_ganador'), {
           winnerData: null
