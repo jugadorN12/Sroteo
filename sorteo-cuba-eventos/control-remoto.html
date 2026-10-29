@@ -1,617 +1,1658 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Control de Sorteo | Cuba Eventos</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0B0713;
-    --card: rgba(255, 255, 255, 0.05);
-    --pink: #FF3D9A;
-    --cyan: #33E1E8;
-    --violet: #8B5CF6;
-    --ink: #F5F0FA;
-    --line: rgba(255,255,255,0.12);
-    --green: #25D366;
-    --green-dark: #128C7E;
-    --font-body: 'Work Sans', sans-serif;
-    --font-display: 'Big Shoulders Display', sans-serif;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body {
-    margin: 0;
-    min-height: 100vh;
-    background: linear-gradient(180deg, #0B0713, #1A0F2E);
-    color: var(--ink);
-    font-family: var(--font-body);
-    display: flex;
-    flex-direction: column;
-    padding: 20px 16px;
-  }
-  header { text-align: center; margin-bottom: 20px; }
-  .eyebrow { color: var(--cyan); font-size: 12px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
-  h1 { font-family: var(--font-display); font-size: 42px; margin: 4px 0; text-transform: uppercase; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cuba Control | Sorteo</title>
 
-  .status-bar {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 15px;
-    padding: 16px;
-    margin-bottom: 18px;
-    text-align: center;
-  }
-  #statusText { font-weight: 700; font-size: 18px; color: var(--cyan); }
-  #participantCount { font-size: 13px; color: #B7A9C9; margin-top: 6px; }
+  <!-- PWA Manifest & Icons -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B0713">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Cuba Control">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png">
 
-  /* Winner Card */
-  .winner-card {
-    background: linear-gradient(135deg, rgba(255, 61, 154, 0.15), rgba(51, 225, 232, 0.1));
-    border: 2px solid var(--pink);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(255, 61, 154, 0.25);
-    animation: fadeIn 0.3s ease;
-  }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-  .winner-card-title {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--pink);
-    margin-bottom: 6px;
-  }
-  .winner-card-name {
-    font-size: 26px;
-    font-weight: 800;
-    color: #fff;
-    margin-bottom: 4px;
-    font-family: var(--font-display);
-    text-transform: uppercase;
-  }
-  .winner-card-meta {
-    font-size: 14px;
-    color: var(--cyan);
-    margin-bottom: 16px;
-  }
-  .winner-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .btn-whatsapp {
-    background: linear-gradient(100deg, #25D366, #128C7E);
-    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 16px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 16px;
-    border: none;
-    cursor: pointer;
-  }
-  .btn-whatsapp:active { transform: scale(0.98); }
-  .btn-call {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid var(--line);
-    color: var(--ink);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  .btn-call:active { transform: scale(0.98); }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Work+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
-  .control-group { display: flex; flex-direction: column; gap: 14px; }
+  <style>
+    :root {
+      --bg-1: #0B0713;
+      --bg-2: #160C24;
+      --card: rgba(255, 255, 255, 0.05);
+      --card-hover: rgba(255, 255, 255, 0.08);
+      --pink: #FF3D9A;
+      --cyan: #33E1E8;
+      --violet: #8B5CF6;
+      --ink: #F5F0FA;
+      --ink-soft: #B7A9C9;
+      --line: rgba(255, 255, 255, 0.12);
+      --green: #25D366;
+      --green-dark: #128C7E;
+      --red: #FF4757;
+      --font-body: 'Work Sans', sans-serif;
+      --font-display: 'Big Shoulders Display', sans-serif;
+    }
 
-  .input-field {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 15px;
-    padding: 18px;
-  }
-  label { display: block; font-size: 13px; margin-bottom: 8px; color: #B7A9C9; font-weight: 600; }
-  input[type="number"] {
-    width: 100%;
-    background: rgba(0,0,0,0.35);
-    border: 1px solid var(--cyan);
-    color: white;
-    font-size: 24px;
-    text-align: center;
-    border-radius: 10px;
-    padding: 10px;
-    font-family: var(--font-display);
-    outline: none;
-  }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-  button {
-    width: 100%;
-    padding: 18px;
-    border-radius: 16px;
-    border: none;
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 16px;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.1s, opacity 0.2s;
-  }
-  button:active { transform: scale(0.97); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; }
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 0%, #251238 0%, #0B0713 70%);
+      color: var(--ink);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
 
-  .btn-primary { background: linear-gradient(100deg, var(--pink), var(--violet)); box-shadow: 0 8px 25px rgba(255, 61, 154, 0.3); }
-  .btn-express { background: linear-gradient(100deg, var(--cyan), var(--violet)); box-shadow: 0 8px 25px rgba(51, 225, 232, 0.2); }
-  .btn-reset { background: transparent; border: 1.5px solid rgba(255,255,255,0.2); color: #B7A9C9; font-size: 14px; padding: 14px; }
-  .btn-reset:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+    body {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 85px;
+      /* Espacio para barra de navegación inferior */
+    }
 
-  /* Winners List Section */
-  .winners-section {
-    margin-top: 30px;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 16px;
-    padding: 20px;
-  }
-  .winners-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
-  .winners-header h2 {
-    font-size: 18px;
-    margin: 0;
-    font-family: var(--font-body);
-    color: var(--ink);
-  }
-  .winners-badge {
-    background: rgba(255, 61, 154, 0.2);
-    border: 1px solid var(--pink);
-    color: var(--pink);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 999px;
-  }
-  .winners-hint {
-    color: #8E82A3;
-    font-size: 12px;
-    margin: 0 0 16px;
-  }
-  .winners-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .winner-item {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 12px 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
-  .winner-item-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-  }
-  .winner-item-name {
-    font-weight: 700;
-    font-size: 15px;
-    color: #fff;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .winner-item-phone {
-    font-size: 12px;
-    color: var(--cyan);
-  }
-  .btn-reinclude {
-    background: transparent;
-    border: 1px solid var(--cyan);
-    color: var(--cyan);
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    width: auto;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-reinclude:active {
-    background: rgba(51, 225, 232, 0.2);
-    transform: scale(0.96);
-  }
-  .empty-winners {
-    text-align: center;
-    color: #6B6280;
-    font-size: 13px;
-    padding: 12px 0;
-  }
+    /* Header */
+    header {
+      background: rgba(11, 7, 19, 0.85);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border-bottom: 1px solid var(--line);
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-  .nav-links { display: flex; gap: 10px; justify-content: center; margin-top: 24px; }
-  .nav-links a { color: var(--cyan); text-decoration: none; font-size: 13px; font-weight: 600; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-  .footer { margin-top: auto; text-align: center; padding: 24px 0 10px; font-size: 12px; color: #6B6280; }
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px;
+    }
 
-  #loginView { text-align: center; padding: 40px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; }
-  #loginView p { color: #B7A9C9; margin-bottom: 20px; font-size: 14px; }
-  .status-err { color: #ff8585; font-size: 13px; margin-top: 14px; }
-  [hidden] { display: none !important; }
-</style>
+    .header-titles h1 {
+      font-family: var(--font-display);
+      font-size: 24px;
+      margin: 0;
+      line-height: 1;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .header-titles span {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .header-badge {
+      background: rgba(255, 61, 154, 0.15);
+      border: 1px solid var(--pink);
+      color: var(--pink);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--pink);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--pink);
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* PWA Install Banner */
+    #installBanner {
+      background: linear-gradient(135deg, rgba(255, 61, 154, 0.2), rgba(51, 225, 232, 0.15));
+      border-bottom: 1px solid var(--pink);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    #installBanner strong {
+      color: #fff;
+    }
+
+    .btn-install {
+      background: var(--pink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Main Container & Tabs */
+    main {
+      flex: 1;
+      padding: 16px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(11, 7, 19, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 6px (max(8px, env(safe-area-inset-bottom)));
+      z-index: 1000;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--ink-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 12px;
+      transition: all 0.2s;
+      width: 25%;
+    }
+
+    .nav-btn .icon {
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .nav-btn.active {
+      color: var(--cyan);
+      background: rgba(51, 225, 232, 0.1);
+    }
+
+    .nav-btn.active .icon {
+      transform: scale(1.15);
+    }
+
+    @keyframes spinWheel {
+      0% {
+        transform: rotate(0deg) scale(1);
+      }
+
+      50% {
+        transform: rotate(180deg) scale(1.15);
+      }
+
+      100% {
+        transform: rotate(360deg) scale(1);
+      }
+    }
+
+    /* Cards & Components */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Status Hero Card */
+    .status-hero {
+      text-align: center;
+      padding: 22px 16px;
+      border: 1px solid rgba(51, 225, 232, 0.3);
+      background: linear-gradient(180deg, rgba(51, 225, 232, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    }
+
+    .status-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--ink-soft);
+      text-transform: uppercase;
+    }
+
+    .status-display {
+      font-family: var(--font-display);
+      font-size: 34px;
+      line-height: 1.1;
+      margin: 6px 0;
+      color: var(--cyan);
+      text-transform: uppercase;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+
+    .status-participants {
+      font-size: 14px;
+      color: #fff;
+      margin-top: 6px;
+    }
+
+    .status-participants span {
+      font-weight: 700;
+      color: var(--pink);
+    }
+
+    /* Winner Card */
+    .winner-card {
+      background: linear-gradient(135deg, rgba(255, 61, 154, 0.25), rgba(139, 92, 246, 0.2));
+      border: 2px solid var(--pink);
+      box-shadow: 0 0 35px rgba(255, 61, 154, 0.35);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 18px;
+      animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .winner-kicker {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .winner-name {
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 900;
+      color: #fff;
+      margin: 6px 0 4px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .winner-meta {
+      font-size: 14px;
+      color: var(--cyan);
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .winner-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-whatsapp {
+      background: linear-gradient(100deg, var(--green), var(--green-dark));
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+      border: none;
+    }
+
+    .btn-call {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .winner-secondary-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .btn-respin {
+      flex: 1;
+      background: rgba(255, 71, 87, 0.15);
+      border: 1px solid var(--red);
+      color: var(--red);
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-finish-winner {
+      flex: 1;
+      background: rgba(51, 225, 232, 0.15);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-size: 13px;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Control Buttons & Inputs */
+    .minutes-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .minute-chip {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      padding: 10px 4px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .minute-chip.selected {
+      background: rgba(255, 61, 154, 0.25);
+      border-color: var(--pink);
+      color: #fff;
+    }
+
+    .custom-minutes-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .custom-minutes-row label {
+      font-size: 13px;
+      color: var(--ink-soft);
+      flex: 1;
+    }
+
+    .custom-minutes-row input {
+      width: 80px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--line);
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: var(--font-display);
+      outline: none;
+    }
+
+    .custom-minutes-row input:focus {
+      border-color: var(--pink);
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-main {
+      background: linear-gradient(100deg, var(--pink), var(--violet));
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: 800;
+      font-family: var(--font-display);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(255, 61, 154, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.1s;
+    }
+
+    .btn-main:active {
+      transform: scale(0.98);
+    }
+
+    .btn-main:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-express {
+      background: linear-gradient(100deg, var(--cyan), var(--violet));
+      color: #0B0713;
+      border: none;
+      border-radius: 16px;
+      padding: 15px;
+      font-size: 16px;
+      font-weight: 800;
+      font-family: var(--font-display);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(51, 225, 232, 0.25);
+    }
+
+    .btn-express:active {
+      transform: scale(0.98);
+    }
+
+    .btn-express:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-cancel {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--ink-soft);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .btn-cancel:active {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Winners registered list */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 22px 0 10px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-soft);
+      margin: 0;
+    }
+
+    .section-badge {
+      background: rgba(255, 61, 154, 0.2);
+      color: var(--pink);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .list-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .list-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .list-item-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .list-item-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .list-item-sub {
+      font-size: 12px;
+      color: var(--cyan);
+      margin-top: 2px;
+    }
+
+    .btn-sm-action {
+      background: transparent;
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Search & Filter Bar */
+    .search-box {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: #fff;
+      padding: 12px 14px 12px 38px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--cyan);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+      font-size: 16px;
+    }
+
+    /* Login View */
+    .login-card {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .login-card p {
+      color: var(--ink-soft);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1D1428;
+      border: 1px solid var(--cyan);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s ease;
+      z-index: 2000;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Quick links inside Settings */
+    .link-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .link-card:active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .link-card span {
+      color: var(--cyan);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
-  <div class="eyebrow">Control Remoto Móvil</div>
-  <h1>Cuba Eventos</h1>
-</header>
+  <!-- Header -->
+  <header>
+    <div class="header-brand">
+      <img src="icon-192.png" alt="Cuba Logo" class="header-logo">
+      <div class="header-titles">
+        <h1>Cuba Control</h1>
+        <span id="headerStatusText">OPERADOR EN VIVO</span>
+      </div>
+    </div>
+    <div class="header-badge">
+      <span class="pulse-dot"></span>
+      <span id="headerCount">0</span>
+    </div>
+  </header>
 
-<div id="loginView">
-  <p>Ingresá con una de las cuentas autorizadas para operar el sorteo.</p>
-  <button id="loginButton" class="btn-primary">Ingresar con Google</button>
-  <p id="loginError" class="status-err"></p>
-</div>
-
-<div id="controlView" hidden>
-  <div class="status-bar">
-    <div id="statusText">SISTEMA LISTO</div>
-    <div id="participantCount">Cargando participantes...</div>
+  <!-- Banner de Instalación PWA (aparece si el navegador lo permite) -->
+  <div id="installBanner" hidden>
+    <div>
+      <strong>📲 Instalar Cuba Control</strong>
+      <div style="font-size:11px; color:#B7A9C9;">Agregala a tu pantalla de inicio</div>
+    </div>
+    <button id="btnInstallApp" class="btn-install">Instalar</button>
   </div>
 
-  <!-- Winner Verification Card -->
-  <div id="winnerCard" class="winner-card" hidden>
-    <div class="winner-card-title">🏆 Persona Ganadora en Pantalla</div>
-    <div id="winnerCardName" class="winner-card-name">—</div>
-    <div id="winnerCardMeta" class="winner-card-meta">—</div>
-    <div class="winner-actions">
-      <a id="btnWhatsApp" class="btn-whatsapp" href="#" target="_blank" rel="noopener">
-        💬 Enviar WhatsApp para Validar
-      </a>
-      <a id="btnCall" class="btn-call" href="#">
-        📞 Llamar por Teléfono
-      </a>
+  <!-- Contenedor Principal -->
+  <main>
+
+    <!-- VISTA DE LOGIN -->
+    <section id="loginView" class="card login-card">
+      <img src="icon-192.png" alt="Logo" style="width:72px; height:72px; margin-bottom:14px; border-radius:16px;">
+      <h2 style="font-family:var(--font-display); font-size:32px; margin:0 0 8px; text-transform:uppercase;">Acceso de
+        Staff</h2>
+      <p>Ingresá con tu cuenta autorizada para operar el sorteo desde tu celular.</p>
+      <button id="loginButton" class="btn-main" style="width:100%;">Ingresar con Google</button>
+      <p id="loginError" style="color:var(--red); font-size:13px; margin-top:14px;"></p>
+    </section>
+
+    <!-- VISTA PRINCIPAL (SOLO AUTENTICADOS) -->
+    <div id="appContainer" hidden>
+
+      <!-- PESTAÑA 1: 🎮 SORTEO EN VIVO -->
+      <div id="tabDraw" class="tab-content active">
+
+        <!-- Estado de la pantalla -->
+        <div class="card status-hero">
+          <div class="status-label">Estado de la Pantalla</div>
+          <div id="liveStatusText" class="status-display">SISTEMA LISTO</div>
+          <div class="status-participants">
+            <span id="activeParticipantsCount">0</span> personas listas para ganar
+          </div>
+        </div>
+
+        <!-- Caja de Cuenta Regresiva Activa en Celular -->
+        <div id="countdownBox" class="card"
+          style="text-align:center; background:linear-gradient(180deg, rgba(255,61,154,0.12), rgba(255,255,255,0.02)); border:1.5px solid var(--pink);"
+          hidden>
+          <div
+            style="font-size:11px; font-weight:800; color:var(--pink); letter-spacing:0.12em; text-transform:uppercase;">
+            Cuenta Regresiva en Curso</div>
+          <div id="countdownTimerMobile"
+            style="font-family:var(--font-display); font-size:46px; font-weight:900; color:#fff; line-height:1.1; margin:6px 0;">
+            10:00</div>
+          <div style="font-size:12px; color:var(--cyan); margin-bottom:12px;">La gente puede seguir escaneando el QR y
+            anotándose.</div>
+          <button id="spinNowBtn" class="btn-main"
+            style="width:100%; font-size:15px; padding:13px; background:linear-gradient(100deg, var(--cyan), var(--violet)); color:#0B0713;">
+            ⚡ ¡GIRAR RULETA AHORA CON TODOS!
+          </button>
+        </div>
+
+        <!-- Tarjeta de Suspenso (Ruleta Girando en Pantalla) -->
+        <div id="suspenseCard" class="card"
+          style="text-align:center; border:2px solid var(--cyan); background:linear-gradient(135deg, rgba(51,225,232,0.15), rgba(255,61,154,0.15));"
+          hidden>
+          <div style="font-size:36px; animation:spinWheel 1s infinite linear;">🎰</div>
+          <div
+            style="font-family:var(--font-display); font-size:26px; color:#fff; text-transform:uppercase; margin:8px 0 4px; font-weight:900;">
+            ¡Ruleta Girando en Pantalla!</div>
+          <div style="font-size:13px; color:var(--cyan); margin-bottom:10px;">Redoblante en el boliche... Los nombres
+            están girando.</div>
+          <div id="suspenseSeconds"
+            style="font-family:var(--font-display); font-size:36px; font-weight:900; color:var(--pink);">15s</div>
+          <div style="font-size:11px; color:var(--ink-soft); margin-top:6px;">El ganador se revelará al mismo tiempo que
+            en la pantalla gigante.</div>
+        </div>
+
+        <!-- Tarjeta del Ganador -->
+        <div id="winnerCard" class="winner-card" hidden>
+          <div class="winner-kicker">
+            🏆 Ganador/a en pantalla
+          </div>
+          <div id="winnerName" class="winner-name">—</div>
+          <div id="winnerMeta" class="winner-meta">—</div>
+
+          <div class="winner-actions">
+            <a id="btnWhatsApp" class="btn-whatsapp" href="#" target="_blank" rel="noopener">
+              💬 Enviar WhatsApp para Validar
+            </a>
+            <a id="btnCall" class="btn-call" href="#">
+              📞 Llamar por Teléfono
+            </a>
+          </div>
+
+          <div class="winner-secondary-actions">
+            <button id="btnRespin" class="btn-respin">🔄 No está presente (Re-sortear)</button>
+            <button id="btnFinish" class="btn-finish-winner">✅ Validar y Terminar</button>
+          </div>
+        </div>
+
+        <!-- Controles del Sorteo -->
+        <div class="card">
+          <label
+            style="display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:8px; text-transform:uppercase;">
+            Tiempo de cuenta regresiva
+          </label>
+
+          <div class="minutes-selector">
+            <div class="minute-chip" data-min="5">5 MIN</div>
+            <div class="minute-chip selected" data-min="10">10 MIN</div>
+            <div class="minute-chip" data-min="15">15 MIN</div>
+          </div>
+
+          <div class="custom-minutes-row">
+            <label for="customMinutes">O personalizar minutos:</label>
+            <input type="number" id="customMinutes" value="10" min="1" max="60">
+          </div>
+
+          <div class="action-buttons">
+            <button id="startDrawBtn" class="btn-main">⏱️ INICIAR CUENTA REGRESIVA</button>
+            <button id="expressDrawBtn" class="btn-express">⚡ SORTEO EXPRESS (15 SEG)</button>
+            <button id="cancelDrawBtn" class="btn-cancel">⏹️ CANCELAR / RESETEAR PANTALLA</button>
+          </div>
+        </div>
+
+        <!-- Lista de Ganadores Registrados -->
+        <div class="section-header">
+          <h2 class="section-title">🏆 Ganadores de la noche</h2>
+          <span id="winnersCountBadge" class="section-badge">0</span>
+        </div>
+        <div id="winnersList" class="list-stack">
+          <div style="text-align:center; color:#6B6280; font-size:13px; padding:12px;">No hay ganadores registrados
+            todavía.</div>
+        </div>
+
+      </div>
+
+      <!-- PESTAÑA 2: 👥 PARTICIPANTES -->
+      <div id="tabParticipants" class="tab-content">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchParticipant" placeholder="Buscar por nombre o celular...">
+        </div>
+
+        <div class="section-header">
+          <h2 class="section-title">Participantes de la fecha</h2>
+          <span id="participantsTotalBadge" class="section-badge">0</span>
+        </div>
+
+        <div id="participantsList" class="list-stack">
+          <div style="text-align:center; color:#6B6280; font-size:13px; padding:18px;">Cargando lista...</div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 3: 🎂 CUMPLEAÑOS -->
+      <div id="tabBirthdays" class="tab-content">
+        <div class="card"
+          style="margin-bottom:14px; background:rgba(51,225,232,0.06); border-color:rgba(51,225,232,0.2);">
+          <div style="font-size:13px; color:var(--cyan); font-weight:600;">
+            🎉 Personas que cumplen años en estos días
+          </div>
+          <div style="font-size:12px; color:var(--ink-soft); margin-top:4px;">
+            Ideal para felicitarlos en la cabina o enviarles invitaciones especiales por WhatsApp.
+          </div>
+        </div>
+
+        <div id="birthdaysList" class="list-stack">
+          <div style="text-align:center; color:#6B6280; font-size:13px; padding:18px;">Calculando cumpleaños...</div>
+        </div>
+      </div>
+
+      <!-- PESTAÑA 4: ⚙️ AJUSTES RÁPIDOS -->
+      <div id="tabSettings" class="tab-content">
+
+        <!-- Premio de la noche -->
+        <div class="card">
+          <h3 style="font-size:15px; margin:0 0 10px; color:#fff;">🎁 Premio de esta noche</h3>
+          <p style="font-size:12px; color:var(--ink-soft); margin:0 0 12px;">
+            Este texto aparece en el formulario donde la gente se inscribe.
+          </p>
+          <input type="text" id="prizeInput" placeholder="Ej: Consumición $40.000 + 2 tragos"
+            style="width:100%; padding:12px; background:rgba(0,0,0,0.4); border:1px solid var(--line); border-radius:10px; color:#fff; font-size:15px; outline:none; margin-bottom:10px;">
+          <button id="savePrizeBtn" class="btn-main" style="width:100%; font-size:14px; padding:12px;">Guardar
+            Premio</button>
+        </div>
+
+        <!-- Enlaces Rápidos del Evento -->
+        <div class="section-header">
+          <h2 class="section-title">Pantallas y Enlaces</h2>
+        </div>
+
+        <a href="pantalla-sorteo.html" target="_blank" class="link-card">
+          <span>🖥️ Pantalla para Proyectar</span>
+          <span>Abrir ↗</span>
+        </a>
+        <a href="index.html" target="_blank" class="link-card">
+          <span>📝 Formulario de Inscripción</span>
+          <span>Abrir ↗</span>
+        </a>
+        <a href="qr.html" target="_blank" class="link-card">
+          <span>📲 Código QR para Imprimir / Pantallas</span>
+          <span>Abrir ↗</span>
+        </a>
+        <a href="admin.html" target="_blank" class="link-card">
+          <span>🎛️ Panel Web Completo (PC)</span>
+          <span>Abrir ↗</span>
+        </a>
+
+        <!-- Cuenta conectada & Cerrar sesión -->
+        <div class="card" style="margin-top:20px; text-align:center;">
+          <div style="font-size:12px; color:var(--ink-soft);">Conectado como:</div>
+          <div id="userEmailDisplay" style="font-weight:700; color:var(--cyan); margin:4px 0 14px; font-size:13px;">—
+          </div>
+          <button id="logoutBtn" class="btn-cancel"
+            style="width:100%; color:var(--red); border-color:rgba(255,71,87,0.3);">Cerrar Sesión</button>
+        </div>
+
+      </div>
+
     </div>
-  </div>
 
-  <div class="control-group">
-    <div class="input-field">
-      <label for="minutes">Minutos de cuenta regresiva para la pantalla</label>
-      <input type="number" id="minutes" value="10" min="0" max="60">
-    </div>
+  </main>
 
-    <button id="startBtn" class="btn-primary">INICIAR CUENTA REGRESIVA</button>
-    <button id="expressBtn" class="btn-express">⚡ SORTEO EXPRESS (15s)</button>
-    <button id="resetBtn" class="btn-reset">CANCELAR Y RESETEAR PANTALLA</button>
-  </div>
+  <!-- Barra Inferior de Navegación (Bottom Navigation Bar) -->
+  <nav id="bottomNav" class="bottom-nav" hidden>
+    <button class="nav-btn active" data-tab="tabDraw">
+      <span class="icon">🎮</span>
+      <span>Sorteo</span>
+    </button>
+    <button class="nav-btn" data-tab="tabParticipants">
+      <span class="icon">👥</span>
+      <span>Gente</span>
+    </button>
+    <button class="nav-btn" data-tab="tabBirthdays">
+      <span class="icon">🎂</span>
+      <span>Cumples</span>
+    </button>
+    <button class="nav-btn" data-tab="tabSettings">
+      <span class="icon">⚙️</span>
+      <span>Ajustes</span>
+    </button>
+  </nav>
 
-  <!-- Winners List (Fuera de Sorteo) -->
-  <section class="winners-section">
-    <div class="winners-header">
-      <h2>🏆 Ganadores Registrados</h2>
-      <span id="winnersCountBadge" class="winners-badge">0</span>
-    </div>
-    <p class="winners-hint">Estas personas están fuera de juego hasta que las vuelvas a incluir con el botón.</p>
-    <div id="winnersListContainer" class="winners-list">
-      <div class="empty-winners">No hay ganadores registrados todavía.</div>
-    </div>
-  </section>
+  <!-- Mensaje flotante (Toast) -->
+  <div id="toast">Acción completada</div>
 
-  <div class="nav-links">
-    <a href="admin.html">Panel Web</a>
-    <a href="participantes.html">Participantes</a>
-    <a href="pantalla-sorteo.html" target="_blank" rel="noopener">Abrir Pantalla</a>
-  </div>
-</div>
+  <!-- Firebase & Lógica de la Web App -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import {
+      getFirestore, doc, getDoc, setDoc, collection, getDocs, onSnapshot,
+      updateDoc, serverTimestamp, writeBatch
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    import {
+      getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
-<div class="footer">
-  Cuba Eventos &bull; Modo Operador en Vivo
-</div>
+    // Configuración oficial de Cuba Eventos
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
+      authDomain: 'cuba-eventos.firebaseapp.com',
+      projectId: 'cuba-eventos',
+      storageBucket: 'cuba-eventos.firebasestorage.app',
+      messagingSenderId: '504683487458',
+      appId: '1:504683487458:web:724f3fb58f18c25b847ebb'
+    };
 
-<script type="module">
-  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-  import { getFirestore, doc, getDoc, setDoc, collection, getDocs, onSnapshot, updateDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    const ADMIN_EMAILS = ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
 
-  const firebaseConfig = {
-    apiKey: 'AIzaSyAbajks1pTCoB0m0eSQc5dabruDWJ1vog4',
-    authDomain: 'cuba-eventos.firebaseapp.com',
-    projectId: 'cuba-eventos',
-    storageBucket: 'cuba-eventos.firebasestorage.app',
-    messagingSenderId: '504683487458',
-    appId: '1:504683487458:web:724f3fb58f18c25b847ebb'
-  };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-  const ADMIN_EMAILS = ['moyanojl1984@gmail.com', 'gncesso@gmail.com'];
+    // Elementos DOM
+    const loginView = document.getElementById('loginView');
+    const appContainer = document.getElementById('appContainer');
+    const bottomNav = document.getElementById('bottomNav');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+    const headerCount = document.getElementById('headerCount');
+    const liveStatusText = document.getElementById('liveStatusText');
+    const activeParticipantsCount = document.getElementById('activeParticipantsCount');
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+    // Ganador y Suspenso
+    const winnerCard = document.getElementById('winnerCard');
+    const winnerName = document.getElementById('winnerName');
+    const winnerMeta = document.getElementById('winnerMeta');
+    const btnWhatsApp = document.getElementById('btnWhatsApp');
+    const btnCall = document.getElementById('btnCall');
+    const btnRespin = document.getElementById('btnRespin');
+    const btnFinish = document.getElementById('btnFinish');
 
-  const loginView = document.getElementById('loginView');
-  const controlView = document.getElementById('controlView');
-  const statusText = document.getElementById('statusText');
-  const participantCount = document.getElementById('participantCount');
-  const startBtn = document.getElementById('startBtn');
-  const expressBtn = document.getElementById('expressBtn');
-  const resetBtn = document.getElementById('resetBtn');
+    const countdownBox = document.getElementById('countdownBox');
+    const countdownTimerMobile = document.getElementById('countdownTimerMobile');
+    const spinNowBtn = document.getElementById('spinNowBtn');
+    const suspenseCard = document.getElementById('suspenseCard');
+    const suspenseSeconds = document.getElementById('suspenseSeconds');
 
-  const winnerCard = document.getElementById('winnerCard');
-  const winnerCardName = document.getElementById('winnerCardName');
-  const winnerCardMeta = document.getElementById('winnerCardMeta');
-  const btnWhatsApp = document.getElementById('btnWhatsApp');
-  const btnCall = document.getElementById('btnCall');
+    let suspenseInterval = null;
+    let countdownInterval = null;
 
-  const winnersListContainer = document.getElementById('winnersListContainer');
-  const winnersCountBadge = document.getElementById('winnersCountBadge');
+    // Listas
+    const winnersList = document.getElementById('winnersList');
+    const winnersCountBadge = document.getElementById('winnersCountBadge');
+    const participantsList = document.getElementById('participantsList');
+    const participantsTotalBadge = document.getElementById('participantsTotalBadge');
+    const birthdaysList = document.getElementById('birthdaysList');
 
-  onAuthStateChanged(auth, async user => {
-    if (user && ADMIN_EMAILS.includes(user.email)) {
-      loginView.hidden = true;
-      controlView.hidden = false;
-      initApp();
-    } else {
-      if (user) {
-        document.getElementById('loginError').textContent = `La cuenta ${user.email} no tiene permisos de administración.`;
-        await signOut(auth);
-      }
-      loginView.hidden = false;
-      controlView.hidden = true;
-    }
-  });
+    // Controles
+    const customMinutes = document.getElementById('customMinutes');
+    const startDrawBtn = document.getElementById('startDrawBtn');
+    const expressDrawBtn = document.getElementById('expressDrawBtn');
+    const cancelDrawBtn = document.getElementById('cancelDrawBtn');
+    const minuteChips = document.querySelectorAll('.minute-chip');
+    const prizeInput = document.getElementById('prizeInput');
+    const savePrizeBtn = document.getElementById('savePrizeBtn');
 
-  document.getElementById('loginButton').onclick = async () => {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch(err) {
-      document.getElementById('loginError').textContent = err.message;
-    }
-  };
+    // PWA Prompt
+    let deferredPrompt = null;
+    const installBanner = document.getElementById('installBanner');
+    const btnInstallApp = document.getElementById('btnInstallApp');
 
-  function formatPhoneForWhatsApp(phone) {
-    let clean = (phone || '').replace(/\D/g, '');
-    if (!clean) return '';
-    if (clean.startsWith('549')) return clean;
-    if (clean.startsWith('54')) return clean.replace(/^54/, '549');
-    if (clean.startsWith('0')) clean = clean.substring(1);
-    if (clean.startsWith('15')) clean = clean.substring(2);
-    return '549' + clean;
-  }
-
-  function showWinnerInfo(winner) {
-    if (!winner || !winner.nombre) {
-      winnerCard.hidden = true;
-      return;
+    // Registrar Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW fail', err));
+      });
     }
 
-    winnerCardName.textContent = winner.nombre;
-    const phone = winner.celular || 'Sin celular';
-    const birth = winner.fecha_nacimiento ? ` | Cumpleaños: ${winner.fecha_nacimiento}` : '';
-    winnerCardMeta.textContent = `📱 ${phone}${birth}`;
-
-    const waPhone = formatPhoneForWhatsApp(winner.celular);
-    const waMsg = encodeURIComponent(`¡Hola ${winner.nombre}! 🥳 Te escribimos de Cuba Eventos porque saliste ganador/a de nuestro sorteo de esta noche. ¿Estás en el boliche para retirar tu premio?`);
-    btnWhatsApp.href = `https://wa.me/${waPhone}?text=${waMsg}`;
-
-    btnCall.href = `tel:${phone.replace(/\s+/g, '')}`;
-    winnerCard.hidden = false;
-  }
-
-  function renderWinnersList(winners) {
-    winnersCountBadge.textContent = winners.length;
-    winnersListContainer.replaceChildren();
-
-    if (!winners.length) {
-      const empty = document.createElement('div');
-      empty.className = 'empty-winners';
-      empty.textContent = 'No hay ganadores registrados todavía.';
-      winnersListContainer.appendChild(empty);
-      return;
-    }
-
-    winners.forEach(docSnap => {
-      const data = docSnap.data();
-      const item = document.createElement('div');
-      item.className = 'winner-item';
-
-      const info = document.createElement('div');
-      info.className = 'winner-item-info';
-
-      const name = document.createElement('div');
-      name.className = 'winner-item-name';
-      name.textContent = data.nombre || 'Sin nombre';
-
-      const phone = document.createElement('div');
-      phone.className = 'winner-item-phone';
-      phone.textContent = `📱 ${data.celular || 'Sin celular'}`;
-
-      info.append(name, phone);
-
-      const btn = document.createElement('button');
-      btn.className = 'btn-reinclude';
-      btn.type = 'button';
-      btn.textContent = '↩ Volver a sorteo';
-      btn.onclick = () => reincludeWinner(docSnap.id, data.nombre);
-
-      item.append(info, btn);
-      winnersListContainer.appendChild(item);
+    // Capturar instalación PWA
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.hidden = false;
     });
-  }
 
-  window.reincludeWinner = async (id, nombre) => {
-    if (confirm(`¿Querés volver a incluir a "${nombre || 'este participante'}" en la lista habilitada para ganar?`)) {
+    btnInstallApp.onclick = async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBanner.hidden = true;
+      }
+      deferredPrompt = null;
+    };
+
+    // Toast Helper
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      if (navigator.vibrate) navigator.vibrate(40);
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    // Cambio de pestañas
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        if (navigator.vibrate) navigator.vibrate(20);
+      };
+    });
+
+    // Selector de minutos
+    minuteChips.forEach(chip => {
+      chip.onclick = () => {
+        minuteChips.forEach(c => c.classList.remove('selected'));
+        chip.classList.add('selected');
+        customMinutes.value = chip.dataset.min;
+        if (navigator.vibrate) navigator.vibrate(15);
+      };
+    });
+
+    customMinutes.oninput = () => {
+      minuteChips.forEach(c => {
+        c.classList.toggle('selected', c.dataset.min === customMinutes.value);
+      });
+    };
+
+    // Autenticación
+    onAuthStateChanged(auth, async user => {
+      if (user && ADMIN_EMAILS.includes(user.email)) {
+        loginView.hidden = true;
+        appContainer.hidden = false;
+        bottomNav.hidden = false;
+        userEmailDisplay.textContent = user.email;
+        initLiveData();
+      } else {
+        if (user) {
+          document.getElementById('loginError').textContent = `La cuenta ${user.email} no es administradora.`;
+          await signOut(auth);
+        }
+        loginView.hidden = false;
+        appContainer.hidden = true;
+        bottomNav.hidden = true;
+      }
+    });
+
+    document.getElementById('loginButton').onclick = async () => {
       try {
-        await updateDoc(doc(db, 'participantes_sorteo', id), { ya_gano: false });
+        await signInWithPopup(auth, provider);
       } catch (err) {
-        alert("Error al volver a incluir: " + err.message);
+        document.getElementById('loginError').textContent = err.message;
       }
+    };
+
+    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+    // Formato para WhatsApp
+    function formatPhoneForWhatsApp(phone) {
+      let clean = (phone || '').replace(/\D/g, '');
+      if (!clean) return '';
+      if (clean.startsWith('549')) return clean;
+      if (clean.startsWith('54')) return clean.replace(/^54/, '549');
+      if (clean.startsWith('0')) clean = clean.substring(1);
+      if (clean.startsWith('15')) clean = clean.substring(2);
+      return '549' + clean;
     }
-  };
 
-  function initApp() {
-    onSnapshot(doc(db, 'sorteo', 'actual'), snap => {
-      if (!snap.exists()) {
-        statusText.textContent = "SISTEMA LISTO";
-        statusText.style.color = "var(--cyan)";
-        winnerCard.hidden = true;
-        return;
-      }
-      const data = snap.data();
-      if (data.status === 'countdown') {
-        statusText.textContent = "EN CUENTA REGRESIVA";
-        statusText.style.color = "var(--pink)";
-      } else if (data.status === 'express' || data.status === 'spinning') {
-        statusText.textContent = "SORTEANDO EN PANTALLA...";
-      } else if (data.status === 'idle') {
-        statusText.textContent = "SISTEMA LISTO";
-        statusText.style.color = "var(--cyan)";
-        winnerCard.hidden = true;
-        return;
-      } else {
-        statusText.textContent = "SISTEMA LISTO";
-        statusText.style.color = "var(--cyan)";
-      }
-    });
+    // Estado global en memoria para búsquedas y cumpleaños
+    let allParticipants = [];
+    let currentWinner = null;
 
-    // Escuchar los datos privados del ganador (solo accesibles para admin)
-    onSnapshot(doc(db, 'sorteo', 'privado_ganador'), snap => {
-      if (snap.exists() && snap.data().winnerData) {
-        showWinnerInfo(snap.data().winnerData);
-      } else {
-        winnerCard.hidden = true;
-      }
-    });
+    function initLiveData() {
+      // 1. Escuchar estado del sorteo actual
+      onSnapshot(doc(db, 'sorteo', 'actual'), snap => {
+        if (!snap.exists()) {
+          updateStatusDisplay('idle');
+          winnerCard.hidden = true;
+          suspenseCard.hidden = true;
+          countdownBox.hidden = true;
+          return;
+        }
+        const data = snap.data();
+        updateStatusDisplay(data.status);
 
-    onSnapshot(collection(db, 'participantes_sorteo'), snap => {
-      const activeParticipants = snap.docs.filter(d => d.data().ya_gano !== true);
-      const winners = snap.docs.filter(d => d.data().ya_gano === true);
+        if (data.status === 'countdown') {
+          countdownBox.hidden = false;
+          suspenseCard.hidden = true;
+          winnerCard.hidden = true;
+          handleCountdownTicker(data);
+        } else if (data.status === 'spinning' || data.status === 'express') {
+          countdownBox.hidden = true;
+          clearInterval(countdownInterval);
+        } else if (data.status === 'idle') {
+          countdownBox.hidden = true;
+          suspenseCard.hidden = true;
+          winnerCard.hidden = true;
+          clearInterval(countdownInterval);
+          clearInterval(suspenseInterval);
+        }
+      });
 
-      participantCount.textContent = `${activeParticipants.length} personas listas para ganar`;
-      startBtn.disabled = activeParticipants.length === 0;
-      expressBtn.disabled = activeParticipants.length === 0;
+      // 2. Escuchar ganador privado (con teléfono completo)
+      onSnapshot(doc(db, 'sorteo', 'privado_ganador'), snap => {
+        if (snap.exists() && snap.data().winnerData) {
+          currentWinner = snap.data().winnerData;
+          const revealAt = currentWinner.revealAt || 0;
+          const now = Date.now();
+          if (revealAt > now) {
+            // Aún está girando la ruleta en la pantalla: suspenso
+            startSuspenseCountdown(revealAt - now, currentWinner);
+          } else {
+            // Ya terminó el giro: mostrar ganador
+            suspenseCard.hidden = true;
+            countdownBox.hidden = true;
+            renderWinnerCard(currentWinner);
+          }
+        } else {
+          currentWinner = null;
+          winnerCard.hidden = true;
+          suspenseCard.hidden = true;
+        }
+      });
 
-      renderWinnersList(winners);
-    });
-  }
+      // 3. Escuchar todos los participantes en tiempo real
+      onSnapshot(collection(db, 'participantes_sorteo'), snap => {
+        allParticipants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  async function prepareDraw(mode) {
-    try {
-      statusText.textContent = "PREPARANDO...";
-      const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
-      const fullEntries = snapshot.docs
-        .filter(d => d.data().ya_gano !== true)
-        .map((d, i) => ({
-          id: d.id,
-          nombre: d.data().nombre,
-          celular: d.data().celular || '',
-          fecha_nacimiento: d.data().fecha_nacimiento || '',
-          numero: i + 1
-        }));
+        const active = allParticipants.filter(p => p.ya_gano !== true);
+        const winners = allParticipants.filter(p => p.ya_gano === true);
 
-      if (fullEntries.length === 0) {
-        statusText.textContent = "SISTEMA LISTO";
-        return alert("No hay participantes habilitados para el sorteo.");
-      }
+        headerCount.textContent = active.length;
+        activeParticipantsCount.textContent = active.length;
+        startDrawBtn.disabled = active.length === 0;
+        expressDrawBtn.disabled = active.length === 0;
 
-      const winnerIndex = Math.floor(Math.random() * fullEntries.length);
-      const winner = fullEntries[winnerIndex];
+        renderWinnersList(winners);
+        renderParticipantsList(allParticipants);
+        renderBirthdaysList(allParticipants);
+      });
 
-      let logoUrl = '';
-      try {
-        const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
-        if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
-      } catch (e) {}
+      // 4. Cargar premio actual del formulario
+      getDoc(doc(db, 'configuracion', 'formulario')).then(snap => {
+        if (snap.exists() && snap.data().prize) {
+          prizeInput.value = snap.data().prize;
+        }
+      }).catch(e => console.log('Err config', e));
+    }
 
-      const minutes = parseInt(document.getElementById('minutes').value) || 10;
+    function handleCountdownTicker(data) {
+      clearInterval(countdownInterval);
+      if (!data.serverStartAt) return;
+      const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
+      const durationMs = (data.durationMinutes || 10) * 60000;
+      const offset = Date.now() - serverStart;
 
-      // Lista pública para proyectar (SOLO nombre y número)
-      const publicEntries = fullEntries.map(e => ({ numero: e.numero, nombre: e.nombre }));
-      const publicWinner = { numero: winner.numero, nombre: winner.nombre };
+      const updateMobileClock = () => {
+        const elapsed = Date.now() - offset - serverStart;
+        const remaining = Math.max(0, durationMs - elapsed);
+        const m = Math.floor(remaining / 60000);
+        const s = Math.floor((remaining % 60000) / 1000);
+        countdownTimerMobile.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 
-      // Datos privados de contacto para administradores
-      const privateWinner = {
-        id: winner.id,
-        nombre: winner.nombre,
-        celular: winner.celular,
-        fecha_nacimiento: winner.fecha_nacimiento,
-        numero: winner.numero
+        if (remaining <= 0) {
+          clearInterval(countdownInterval);
+          countdownTimerMobile.textContent = "00:00";
+          spinNowBtn.textContent = "🎉 ¡TIEMPO CUMPLIDO! GIRAR RULETA AHORA";
+          spinNowBtn.style.background = "linear-gradient(100deg, var(--pink), var(--violet))";
+          spinNowBtn.style.color = "#fff";
+        } else {
+          spinNowBtn.textContent = "⚡ ¡GIRAR RULETA AHORA CON TODOS!";
+          spinNowBtn.style.background = "linear-gradient(100deg, var(--cyan), var(--violet))";
+          spinNowBtn.style.color = "#0B0713";
+        }
       };
 
-      // Guardar todo de forma atómica en Firestore
-      const batch = writeBatch(db);
-      batch.update(doc(db, 'participantes_sorteo', winner.id), {
-        ya_gano: true,
-        fecha_ganador: serverTimestamp()
-      });
-      batch.set(doc(db, 'sorteo', 'actual'), {
-        status: mode === 'express' ? 'express' : 'countdown',
-        entries: publicEntries,
-        winnerIndex,
-        winnerData: publicWinner,
-        logoUrl,
-        durationMinutes: minutes,
-        serverStartAt: serverTimestamp(),
-        duration: 9000
-      });
-      batch.set(doc(db, 'sorteo', 'privado_ganador'), {
-        winnerData: privateWinner,
-        updatedAt: serverTimestamp()
-      });
-
-      await batch.commit();
-      showWinnerInfo(winner);
-
-    } catch (error) {
-      console.error("Error al iniciar sorteo:", error);
-      alert("Error al iniciar sorteo: " + error.message);
-      statusText.textContent = "ERROR";
+      updateMobileClock();
+      countdownInterval = setInterval(updateMobileClock, 1000);
     }
-  }
 
-  startBtn.onclick = () => prepareDraw('normal');
-  expressBtn.onclick = () => {
-    if (confirm("¿Iniciar sorteo express ahora mismo? (Giro de 15 segundos en pantalla)")) {
-      prepareDraw('express');
+    function startSuspenseCountdown(durationMs, winner) {
+      clearInterval(suspenseInterval);
+      suspenseCard.hidden = false;
+      winnerCard.hidden = true;
+      countdownBox.hidden = true;
+
+      const endTime = Date.now() + durationMs;
+
+      const tickSuspense = () => {
+        const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+        suspenseSeconds.textContent = `${remaining}s`;
+
+        if (remaining <= 0) {
+          clearInterval(suspenseInterval);
+          suspenseCard.hidden = true;
+          renderWinnerCard(winner);
+          if (navigator.vibrate) navigator.vibrate([150, 80, 150, 80, 300]);
+          showToast('🏆 ¡Ganador/a en pantalla!');
+        }
+      };
+
+      tickSuspense();
+      suspenseInterval = setInterval(tickSuspense, 500);
     }
-  };
 
-  resetBtn.onclick = async () => {
-    if (confirm("¿Estás seguro de resetear la pantalla del sorteo?")) {
+    function updateStatusDisplay(status) {
+      if (status === 'countdown') {
+        liveStatusText.textContent = "EN CUENTA REGRESIVA";
+        liveStatusText.style.color = "var(--pink)";
+      } else if (status === 'express' || status === 'spinning') {
+        liveStatusText.textContent = "SORTEANDO EN VIVO...";
+        liveStatusText.style.color = "#FFD700";
+      } else {
+        liveStatusText.textContent = "SISTEMA LISTO";
+        liveStatusText.style.color = "var(--cyan)";
+      }
+    }
+
+    function renderWinnerCard(winner) {
+      if (!winner || !winner.nombre) {
+        winnerCard.hidden = true;
+        return;
+      }
+      winnerName.textContent = winner.nombre;
+      const phone = winner.celular || 'Sin celular';
+      const birth = winner.fecha_nacimiento ? ` | Cumple: ${winner.fecha_nacimiento}` : '';
+      winnerMeta.textContent = `📱 ${phone}${birth}`;
+
+      const waPhone = formatPhoneForWhatsApp(winner.celular);
+      const waMsg = encodeURIComponent(`¡Hola ${winner.nombre}! 🥳 Te escribimos de Cuba Eventos porque saliste ganador/a de nuestro sorteo de esta noche. ¿Estás en el boliche para retirar tu premio?`);
+      btnWhatsApp.href = `https://wa.me/${waPhone}?text=${waMsg}`;
+      btnCall.href = `tel:${phone.replace(/\s+/g, '')}`;
+
+      winnerCard.hidden = false;
+    }
+
+    function renderWinnersList(winners) {
+      winnersCountBadge.textContent = winners.length;
+      winnersList.replaceChildren();
+
+      if (!winners.length) {
+        winnersList.innerHTML = '<div style="text-align:center; color:#6B6280; font-size:13px; padding:12px;">No hay ganadores registrados todavía.</div>';
+        return;
+      }
+
+      winners.forEach(w => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.innerHTML = `
+        <div class="list-item-main">
+          <div class="list-item-title">${w.nombre || 'Sin nombre'}</div>
+          <div class="list-item-sub">📱 ${w.celular || 'Sin celular'}</div>
+        </div>
+        <button class="btn-sm-action" onclick="reincludeWinner('${w.id}', '${w.nombre}')">
+          ↩ Volver a incluir
+        </button>
+      `;
+        winnersList.appendChild(item);
+      });
+    }
+
+    window.reincludeWinner = async (id, nombre) => {
+      if (confirm(`¿Querés volver a incluir a "${nombre}" en el sorteo?`)) {
+        try {
+          await updateDoc(doc(db, 'participantes_sorteo', id), { ya_gano: false });
+          showToast('Participante habilitado de nuevo');
+        } catch (err) {
+          alert("Error: " + err.message);
+        }
+      }
+    };
+
+    // Renderizar Participantes con buscador
+    function renderParticipantsList(list) {
+      participantsTotalBadge.textContent = list.length;
+      const search = document.getElementById('searchParticipant').value.toLowerCase().trim();
+
+      const filtered = list.filter(p => {
+        if (!search) return true;
+        const n = (p.nombre || '').toLowerCase();
+        const c = (p.celular || '').replace(/\D/g, '');
+        return n.includes(search) || c.includes(search);
+      });
+
+      participantsList.replaceChildren();
+
+      if (!filtered.length) {
+        participantsList.innerHTML = '<div style="text-align:center; color:#6B6280; font-size:13px; padding:18px;">No se encontraron participantes.</div>';
+        return;
+      }
+
+      filtered.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        const isWinner = p.ya_gano === true;
+        item.innerHTML = `
+        <div class="list-item-main">
+          <div class="list-item-title">${p.nombre || 'Sin nombre'} ${isWinner ? '🏆' : ''}</div>
+          <div class="list-item-sub">📱 ${p.celular || 'Sin celular'} ${p.fecha_nacimiento ? ' | 🎂 ' + p.fecha_nacimiento : ''}</div>
+        </div>
+        <div style="font-size:11px; font-weight:700; color:${isWinner ? 'var(--pink)' : 'var(--cyan)'}">
+          ${isWinner ? 'YA GANÓ' : 'HABILITADO'}
+        </div>
+      `;
+        participantsList.appendChild(item);
+      });
+    }
+
+    document.getElementById('searchParticipant').oninput = () => {
+      renderParticipantsList(allParticipants);
+    };
+
+    // Cumpleaños próximos
+    function renderBirthdaysList(list) {
+      const hoy = new Date();
+      const hoyMes = hoy.getMonth() + 1;
+      const hoyDia = hoy.getDate();
+
+      const withBirthday = list.filter(p => p.fecha_nacimiento && p.fecha_nacimiento.includes('-')).map(p => {
+        const parts = p.fecha_nacimiento.split('-');
+        const mes = parseInt(parts[1], 10);
+        const dia = parseInt(parts[2], 10);
+
+        // Calcular días hasta el próximo cumpleaños
+        let difDias = 999;
+        if (mes === hoyMes && dia >= hoyDia) {
+          difDias = dia - hoyDia;
+        } else if (mes === (hoyMes % 12) + 1) {
+          difDias = (30 - hoyDia) + dia;
+        }
+        return { ...p, mes, dia, difDias };
+      }).filter(p => p.difDias <= 30).sort((a, b) => a.difDias - b.difDias);
+
+      birthdaysList.replaceChildren();
+
+      if (!withBirthday.length) {
+        birthdaysList.innerHTML = '<div style="text-align:center; color:#6B6280; font-size:13px; padding:18px;">No hay cumpleaños registrados en los próximos 30 días.</div>';
+        return;
+      }
+
+      withBirthday.forEach(b => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        const waPhone = formatPhoneForWhatsApp(b.celular);
+        const waMsg = encodeURIComponent(`¡Hola ${b.nombre}! 🎂 Te escribimos de Cuba Eventos. Vimos que se acerca tu cumpleaños (${b.dia}/${b.mes}) y queríamos invitarte a festejarlo con nosotros...`);
+
+        let tag = b.difDias === 0 ? '¡HOY!' : b.difDias === 1 ? '¡MAÑANA!' : `En ${b.difDias} días`;
+
+        item.innerHTML = `
+        <div class="list-item-main">
+          <div class="list-item-title">${b.nombre} <span style="font-size:11px; color:var(--pink); font-weight:700;">(${tag})</span></div>
+          <div class="list-item-sub">🎂 ${b.dia}/${b.mes} &bull; 📱 ${b.celular || ''}</div>
+        </div>
+        ${waPhone ? `<a href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank" class="btn-sm-action" style="text-decoration:none; display:flex; align-items:center; gap:4px;">💬 Saludar</a>` : ''}
+      `;
+        birthdaysList.appendChild(item);
+      });
+    }
+
+    // 1. Iniciar cuenta regresiva (la lista de participantes queda 100% abierta para que se sigan anotando)
+    async function startCountdown() {
+      const minutes = parseInt(customMinutes.value) || 10;
       let logoUrl = '';
       try {
         const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
         if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
-      } catch (e) {}
-      const batch = writeBatch(db);
-      batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl });
-      batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
-      await batch.commit();
-      winnerCard.hidden = true;
-    }
-  };
+      } catch (e) { }
 
-</script>
+      try {
+        const batch = writeBatch(db);
+        batch.set(doc(db, 'sorteo', 'actual'), {
+          status: 'countdown',
+          durationMinutes: minutes,
+          serverStartAt: serverTimestamp(),
+          logoUrl
+        });
+        batch.set(doc(db, 'sorteo', 'privado_ganador'), {
+          winnerData: null
+        });
+        await batch.commit();
+        showToast(`⏱️ Cuenta regresiva iniciada (${minutes} min). La lista queda abierta.`);
+      } catch (err) {
+        alert("Error al iniciar cuenta regresiva: " + err.message);
+      }
+    }
+
+    // 2. Iniciar el giro de la ruleta (toma a todos los inscriptos hasta este segundo)
+    async function triggerSpin(mode) {
+      try {
+        liveStatusText.textContent = "PREPARANDO PARTICIPANTES...";
+        // Consulta en vivo de todos los participantes anotados hasta este instante exacto:
+        const snapshot = await getDocs(collection(db, 'participantes_sorteo'));
+        const fullEntries = snapshot.docs
+          .filter(d => d.data().ya_gano !== true)
+          .map((d, i) => ({
+            id: d.id,
+            nombre: d.data().nombre,
+            celular: d.data().celular || '',
+            fecha_nacimiento: d.data().fecha_nacimiento || '',
+            numero: i + 1
+          }));
+
+        if (fullEntries.length === 0) {
+          alert("No hay personas habilitadas para ganar.");
+          liveStatusText.textContent = "SISTEMA LISTO";
+          return;
+        }
+
+        const winnerIndex = Math.floor(Math.random() * fullEntries.length);
+        const winner = fullEntries[winnerIndex];
+
+        let logoUrl = '';
+        try {
+          const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
+          if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
+        } catch (e) { }
+
+        const spinDuration = 15000; // 15 segundos de suspenso con redoblantes en la pantalla
+        const revealTimestamp = Date.now() + spinDuration;
+
+        const publicEntries = fullEntries.map(e => ({ numero: e.numero, nombre: e.nombre }));
+        const publicWinner = { numero: winner.numero, nombre: winner.nombre };
+
+        const privateWinner = {
+          id: winner.id,
+          nombre: winner.nombre,
+          celular: winner.celular,
+          fecha_nacimiento: winner.fecha_nacimiento,
+          numero: winner.numero,
+          revealAt: revealTimestamp
+        };
+
+        const batch = writeBatch(db);
+        batch.update(doc(db, 'participantes_sorteo', winner.id), {
+          ya_gano: true,
+          fecha_ganador: serverTimestamp()
+        });
+        batch.set(doc(db, 'sorteo', 'actual'), {
+          status: 'spinning',
+          entries: publicEntries,
+          winnerIndex,
+          winnerData: publicWinner,
+          logoUrl,
+          spinStartAt: serverTimestamp(),
+          spinDuration: spinDuration
+        });
+        batch.set(doc(db, 'sorteo', 'privado_ganador'), {
+          winnerData: privateWinner,
+          updatedAt: serverTimestamp()
+        });
+
+        await batch.commit();
+
+        startSuspenseCountdown(spinDuration, privateWinner);
+        showToast('🎰 ¡Ruleta girando con todos los inscriptos!');
+
+      } catch (err) {
+        console.error(err);
+        alert("Error al iniciar sorteo: " + err.message);
+        liveStatusText.textContent = "ERROR";
+      }
+    }
+
+    startDrawBtn.onclick = () => startCountdown();
+
+    spinNowBtn.onclick = () => {
+      if (confirm("¿Cerrar lista y girar la ruleta ahora mismo con todos los participantes?")) {
+        triggerSpin('countdown_finish');
+      }
+    };
+
+    expressDrawBtn.onclick = () => {
+      if (confirm("¿Lanzar sorteo express ahora mismo con todos los participantes anotados? (Giro de 15 segundos en pantalla)")) {
+        triggerSpin('express');
+      }
+    };
+
+    cancelDrawBtn.onclick = async () => {
+      if (confirm("¿Estás seguro de cancelar y resetear la pantalla pública?")) {
+        try {
+          clearInterval(countdownInterval);
+          clearInterval(suspenseInterval);
+          countdownBox.hidden = true;
+          suspenseCard.hidden = true;
+          winnerCard.hidden = true;
+
+          let logoUrl = '';
+          try {
+            const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
+            if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
+          } catch (e) { }
+
+          const batch = writeBatch(db);
+          batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl });
+          batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
+          await batch.commit();
+          showToast('Pantalla reseteada');
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+    };
+
+    // Re-sortear si no está presente
+    btnRespin.onclick = async () => {
+      if (confirm("¿La persona no está presente? Se mantendrá registrada como sorteada y se elegirá un nuevo ganador ahora.")) {
+        triggerSpin('express');
+      }
+    };
+
+    // Validar y terminar sorteo
+    btnFinish.onclick = async () => {
+      if (confirm("¿Confirmar entrega del premio y cerrar sorteo en pantalla?")) {
+        try {
+          let logoUrl = '';
+          try {
+            const configSnap = await getDoc(doc(db, 'sorteo', 'configuracion'));
+            if (configSnap.exists()) logoUrl = configSnap.data().logoUrl || '';
+          } catch (e) { }
+
+          const batch = writeBatch(db);
+          batch.set(doc(db, 'sorteo', 'actual'), { status: 'idle', entries: [], logoUrl });
+          batch.set(doc(db, 'sorteo', 'privado_ganador'), { winnerData: null });
+          await batch.commit();
+          winnerCard.hidden = true;
+          showToast('¡Premio entregado y registrado con éxito!');
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      }
+    };
+
+    // Guardar premio en Firestore
+    savePrizeBtn.onclick = async () => {
+      const val = prizeInput.value.trim();
+      if (!val) return alert("Escribí el nombre del premio");
+      savePrizeBtn.disabled = true;
+      savePrizeBtn.textContent = "Guardando...";
+      try {
+        await updateDoc(doc(db, 'configuracion', 'formulario'), { prize: val });
+        showToast('Premio actualizado');
+      } catch (err) {
+        alert("Error al guardar: " + err.message);
+      } finally {
+        savePrizeBtn.disabled = false;
+        savePrizeBtn.textContent = "Guardar Premio";
+      }
+    };
+
+  </script>
 </body>
+
 </html>

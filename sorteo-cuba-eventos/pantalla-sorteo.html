@@ -413,23 +413,20 @@ onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
 
   if(data.status === 'idle') { resetScreen(); return; }
 
-  const entries = data.entries || [];
-  if(!entries.length) return;
+  // 1. Modo Giro de Ruleta (spinning o express)
+  if(data.status === 'spinning' || data.status === 'express') {
+    const entries = data.entries || [];
+    if(!entries.length) return;
 
-  if(!data.serverStartAt) return;
-
-  const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
-  const drawId = data.status + '_' + serverStart;
-
-  if(drawId === activeStartAt) return;
-  activeStartAt = drawId;
-
-  if(data.status === 'express') {
-    startRoll(data, true, 9000);
+    const spinDuration = data.spinDuration || 15000;
+    startRoll(data, true, spinDuration);
     return;
   }
 
+  // 2. Modo Cuenta Regresiva (la lista de participantes sigue abierta en vivo)
   if(data.status === 'countdown') {
+    if(!data.serverStartAt) return;
+    const serverStart = data.serverStartAt.toMillis ? data.serverStartAt.toMillis() : (data.serverStartAt || Date.now());
     const durationMs = (data.durationMinutes || 10) * 60000;
 
     waiting.hidden = true;
@@ -453,8 +450,10 @@ onSnapshot(doc(db, 'sorteo', 'actual'), snapshot => {
 
       if (remaining <= 0) {
         clearInterval(timer);
-        // Ruleta de nombres por 15 segundos sin sonido de redoblante, luego trompetas de ganador
-        startRoll(data, false, 15000);
+        countdown.textContent = "00:00.000";
+        document.querySelector('.countdown-label').textContent = "¡Tiempo cumplido! Preparando ruleta...";
+      } else {
+        document.querySelector('.countdown-label').textContent = "El sorteo comienza en (¡escaneá el QR para sumarte!)";
       }
     };
 
